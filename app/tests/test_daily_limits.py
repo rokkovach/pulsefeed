@@ -12,7 +12,7 @@ from test_jobs import finish
 from test_view_feed import source
 
 
-def ledger(env,owner,url,amount=2,at=None):
+def ledger(env,owner,url,amount=2,at=None,mode="synthetic"):
     service=env['app'].state.service
     item=service.save_feed(owner,url,source(('ledger',)))['items'][0]
     now=time.time() if at is None else at
@@ -21,8 +21,8 @@ def ledger(env,owner,url,amount=2,at=None):
     env['db'].execute('INSERT INTO batches VALUES(?,?,?,?,?)',(batch_id,owner,new_id(),'finished',now))
     original=dict(item,article={'title':item['title'],'excerpt':item['excerpt']})
     env['db'].execute("INSERT INTO runs(id,batch_id,owner,item_id,ordinal,state,settings,original,seed,created,reserved,reserved_at,quota_finalized_at,quota_epoch,admission_epoch) VALUES(?,?,?,?,0,'completed',?,?,1,?,?,?,?,?,?)",(run_id,batch_id,owner,item['id'],dump(DEFAULT_SETTINGS),dump(original),now,amount,now,now,epoch,epoch))
-    output={'model':{'id':'black-forest-labs/FLUX.2-klein-4B','revision':'synthetic-fixture','precision':'synthetic','runtime':'synthetic-fixture'},'usage':{'image_count':1},'counters':{'inference_attempts':amount,'inference_retries':max(0,amount-1),'dependency_retries':0}}
-    env['db'].execute("INSERT INTO invocations(id,run_id,stage,status,input,output,created,execution_mode) VALUES(?,?,'flux','succeeded','{}',?,?,'synthetic')",(new_id(),run_id,dump(output),now))
+    output={'model':{'id':'black-forest-labs/FLUX.2-klein-4B','revision':'synthetic-fixture' if mode=='synthetic' else 'pinned-revision','precision':'synthetic' if mode=='synthetic' else 'bfloat16','runtime':'synthetic-fixture' if mode=='synthetic' else 'pinned-runtime'},'usage':{'image_count':1},'counters':{'inference_attempts':amount,'inference_retries':max(0,amount-1),'dependency_retries':0}}
+    env['db'].execute("INSERT INTO invocations(id,run_id,stage,status,input,output,created,execution_mode) VALUES(?,?,'flux','succeeded','{}',?,?,?)",(new_id(),run_id,dump(output),now,mode))
     return run_id,item['id']
 
 
@@ -266,7 +266,7 @@ async def test_new_invocations_record_mode_and_admin_aggregate_is_private(env):
         text=response.text
         assert sentinel not in text and data['feed']['id'] not in text and data['runs'][0]['id'] not in text
         assert all(account not in text for account in (env['owner'],env['other'],env['admin']))
-        assert 'quotas' in response.json() and response.json()['models']
+        assert 'quotas' in response.json() and response.json()['models']==[]
     html=env['client'].get('/admin').text
     assert sentinel not in html
     assert len(env['provider'].submissions)==2
@@ -276,7 +276,7 @@ async def test_new_invocations_record_mode_and_admin_aggregate_is_private(env):
 def test_admin_hides_unattributed_results_without_deleting_jobs_or_releasing_quota(env,unverified_output):
     from pulsefeed.usage import aggregate_usage
 
-    ledger(env,env['owner'],'https://example.com/confirmed',amount=1)
+    ledger(env,env['owner'],'https://example.com/confirmed',amount=1,mode='live')
     service=env['app'].state.service
     page=service.view_feed(env['owner'],'https://example.com/pending','pending-model-report',source(('pending',)))
     invocation_id=new_id()
@@ -292,7 +292,7 @@ def test_admin_hides_unattributed_results_without_deleting_jobs_or_releasing_quo
         response=env['client'].get('/api/admin/usage',params={'window':window})
         assert response.status_code==200
         report=response.json()
-        assert report['models']==[row for row in raw['models'] if row['model_id'] is not None]
+        assert report['models']==[row for row in raw['models'] if row['model_id'] is not None and row['execution_mode']=='live']
         assert report['models'] and all(row['model_id'] is not None for bucket in report['timeline']['buckets'] for row in bucket['models'])
         for key in ('global','hourly','page'):
             assert report['quotas'][key]==quotas[key]
@@ -300,6 +300,29 @@ def test_admin_hides_unattributed_results_without_deleting_jobs_or_releasing_quo
         assert html.status_code==200 and 'Unverified model' not in html.text
         assert 'black-forest-labs/FLUX.2-klein-4B' in html.text
 
+    assert env['db'].all('SELECT * FROM invocations')==history
+    assert env['provider'].submissions==[]
+
+
+def test_admin_reports_live_activity_only_but_retains_other_modes_and_their_quota(env):
+    from pulsefeed.usage import aggregate_usage
+
+    for index,mode in enumerate(('live','synthetic',None)):
+        ledger(env,env['owner'],f'https://example.com/mode-{index}',amount=1,mode=mode)
+    quotas=env['app'].state.service.quota_summary()
+    history=env['db'].all('SELECT * FROM invocations')
+    assert quotas['global']['used']==3
+    assert {row['execution_mode'] for row in aggregate_usage(env['db'],'all')['models']}=={'live','synthetic','unknown'}
+    admin(env)
+    for window in ('today','all'):
+        report=env['client'].get('/api/admin/usage',params={'window':window}).json()
+        assert len(report['models'])==1 and report['models'][0]['execution_mode']=='live'
+        assert report['models'][0]['invocations']==1 and report['models'][0]['image_count']['total']==1
+        assert all(row['execution_mode']=='live' for bucket in report['timeline']['buckets'] for row in bucket['models'])
+        assert report['quotas']['global']==quotas['global']
+        page=env['client'].get('/admin',params={'window':window})
+        assert 'Live activity' in page.text and 'id="usage-mode"' not in page.text
+        assert 'Synthetic demo' not in page.text and 'Unknown mode' not in page.text
     assert env['db'].all('SELECT * FROM invocations')==history
     assert env['provider'].submissions==[]
 

@@ -4,9 +4,9 @@ PulseFeed deliberately trades high availability for a small auditable deployment
 
 ## Observe without admitting work
 
-Use the app's `/health` for process liveness; its status/mode response does not establish database or provider readiness. Use `/admin` for aggregate usage, reservations and model outcomes. The reports separate real, synthetic and unknown provenance and distinguish missing measurements from zero. Compare known starts, attempts and reservation state; FLUX has images/attempts, not a fabricated token equivalent.
+Use the app's `/health` for process liveness; its status/mode response does not establish database or provider readiness. Use `/admin` for aggregate usage, reservations and model outcomes. The dashboard reports live activity only and distinguishes missing measurements from zero. Compare known starts, attempts and reservation state; FLUX has images/attempts, not a fabricated token equivalent.
 
-Model tables and charts show only calls with a confirmed model identity. Pending or malformed results stay in the invocation history and quota accounting; hiding their unattributed report rows never deletes jobs or releases reservations. A completed result appears under its confirmed model on the next refresh.
+Model tables and charts show only live calls with a confirmed model identity. Synthetic, unknown-mode, pending and malformed results stay in the invocation history and quota accounting; hiding their unattributed report rows never deletes jobs or releases reservations. A completed live result appears under its confirmed model on the next refresh.
 
 On Spark, authenticated gateway `/health` reports aggregate `active_jobs`, `retained_jobs` and `result_capacity` without identifiers or payloads. `./local/control.sh status` reports containers. A full result store rejects new jobs rather than evicting unexpired output. Default capacity is 128 per worker (range 1–256); configure it before startup, accounting for bounded output plus Python/transient memory.
 

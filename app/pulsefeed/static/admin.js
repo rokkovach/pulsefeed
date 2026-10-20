@@ -3,7 +3,7 @@
   "use strict";
   const boot = JSON.parse(document.getElementById("admin-bootstrap").textContent);
   const $ = (id) => document.getElementById(id);
-  const state = { quotas: boot.quotas, report: null, window: "today", mode: null, modeExplicit: false, writing: false, reading: false,
+  const state = { quotas: boot.quotas, report: null, window: "today", writing: false, reading: false,
     armed: false, expired: false, suspended: false, requests: new Set(), readSequence: 0, cooldownUntil: 0, cooldownTimer: null,
     limitDraft: { global_daily_limit: { revision: 0, dirty: false }, feed_article_limit: { revision: 0, dirty: false } } };
   function cancelRequests() { for (const controller of state.requests) controller.abort(); }
@@ -35,7 +35,6 @@
     document.querySelectorAll("[data-admin-write]").forEach((button) => { button.disabled = blocked; });
     $("refresh-usage").disabled = state.reading || state.writing || state.expired || state.suspended;
     $("usage-window").disabled = state.writing || state.expired || state.suspended;
-    $("usage-mode").disabled = state.writing || state.expired || state.suspended;
     $("cancel-quota-reset").disabled = state.writing;
   }
   function cooldown(seconds) {
@@ -123,11 +122,11 @@
   function validMetric(metric) {
     return metric && (metric.total === null || (Number.isFinite(metric.total) && metric.total >= 0)) && count(metric.reported) && count(metric.missing);
   }
-  const modeLabels = {live: "Live", synthetic: "Synthetic demo", unknown: "Unknown mode"};
+  const isLiveModel = model => model.execution_mode === "live" && typeof model.model_id === "string" && model.model_id.length > 0;
   const chartSeries = {qwen: [["input_tokens", "Input tokens"], ["output_tokens", "Output tokens"]], flux: [["image_count", "Images"], ["inference_attempts", "Attempts"]]};
   function timestamp(value) { return typeof value === "number" ? value * 1000 : Date.parse(value); }
   function validModel(model) {
-    return model && ["qwen", "flux"].includes(model.stage) && Object.hasOwn(modeLabels, model.execution_mode)
+    return model && ["qwen", "flux"].includes(model.stage) && ["live", "synthetic", "unknown"].includes(model.execution_mode)
       && (model.model_id === null || typeof model.model_id === "string")
       && ["invocations", "succeeded", "failed", "pending", "unknown"].every(key => count(model[key]))
       && typeof model.tokens_applicable === "boolean" && typeof model.images_applicable === "boolean"
@@ -158,10 +157,10 @@
     return cell;
   }
   function renderModelRows(stage, report) {
-    const models = report.models.filter(model => model.stage === stage && model.execution_mode === state.mode);
+    const models = report.models.filter(model => model.stage === stage && isLiveModel(model));
     const rows = models.map(model => {
       const row = node("tr"), identity = node("th", "usage-model"); identity.scope = "row";
-      identity.append(node("strong", "", model.model_id || "Unverified model"), node("span", `mode-badge ${model.execution_mode}`, modeLabels[model.execution_mode]));
+      identity.append(node("strong", "", model.model_id), node("span", "mode-badge live", "Live"));
       const outcomes = node("td", "usage-outcomes"); outcomes.append(node("strong", "", `${format(model.invocations)} calls`));
       const counts = node("dl");
       for (const [label, key] of [["Succeeded", "succeeded"], ["Failed", "failed"], ["Pending", "pending"], ["Unknown", "unknown"]]) counts.append(node("dt", "", label), node("dd", "", format(model[key])));
@@ -171,7 +170,7 @@
       row.append(metricCell(model.inference_attempts), metricCell(model.inference_retries || {total: null, reported: 0, missing: model.invocations}));
       return row;
     });
-    if (!rows.length) { const row = node("tr"), cell = node("td", "usage-empty", `No ${stage === "qwen" ? "Qwen" : "FLUX"} calls recorded for this mode and period.`); cell.colSpan = stage === "qwen" ? 7 : 5; row.append(cell); rows.push(row); }
+    if (!rows.length) { const row = node("tr"), cell = node("td", "usage-empty", `No live ${stage === "qwen" ? "Qwen" : "FLUX"} calls recorded for this period.`); cell.colSpan = stage === "qwen" ? 7 : 5; row.append(cell); rows.push(row); }
     $(`${stage}-usage-rows`).replaceChildren(...rows);
     return models;
   }
@@ -198,11 +197,11 @@
   }
   function renderChart(stage, report, models) {
     const chart = $(`${stage}-usage-chart`), rows = $(`${stage}-bucket-rows`), note = $(`${stage}-chart-note`);
-    $(`${stage}-chart-mode`).textContent = modeLabels[state.mode];
+    $(`${stage}-chart-mode`).textContent = "Live";
     const series = chartSeries[stage], hourly = report.window === "today";
     const ready = validTimeline(report), generated = timestamp(report.generated_at);
     const points = ready ? report.timeline.buckets.map(bucket => {
-      const selected = bucket.models.filter(model => model.stage === stage && model.execution_mode === state.mode);
+      const selected = bucket.models.filter(model => model.stage === stage && isLiveModel(model));
       return {bucket, future: timestamp(bucket.start) > generated, futureRecorded: timestamp(bucket.start) > generated && selected.length > 0, open: timestamp(bucket.start) <= generated && generated < timestamp(bucket.end),
         values: series.map(([key]) => bucketMetric(selected, key))};
     }) : [];
@@ -215,12 +214,12 @@
     rows.replaceChildren(...tableRows);
     note.textContent = ready ? `${hourly ? "Hourly" : report.timeline.bucket_seconds === 86400 ? "Daily" : `${report.timeline.bucket_seconds / 86400}-day`} buckets · UTC · calls grouped by start time.${points.some(point => point.open) ? " Current bucket is still in progress." : ""} Gaps are unavailable; partial values are known subtotals.` : "Timeline unavailable in this report. Totals remain available below; refresh usage to check for chart data.";
     if (!points.length || !models.length) {
-      chart.replaceChildren(node("p", "usage-chart-empty", !ready ? "Timeline unavailable. Refresh usage to try again." : "No calls recorded for this mode and period."));
+      chart.replaceChildren(node("p", "usage-chart-empty", !ready ? "Timeline unavailable. Refresh usage to try again." : "No live calls recorded for this period."));
       return;
     }
     const values = points.flatMap(point => point.future ? [] : point.values.map(value => value.total).filter(value => value !== null));
     const max = Math.max(1, ...values), x = index => 84 + (points.length === 1 ? 252 : index / (points.length - 1) * 504), y = value => 168 - value / max * 140;
-    const svg = svgNode("svg", {viewBox: "0 0 620 210", role: "img", "aria-label": `${stage === "qwen" ? "Qwen" : "FLUX"} ${series.map(([, label]) => label).join(" and ")}, ${modeLabels[state.mode]}. Same vertical scale; see chart data table for values.`});
+    const svg = svgNode("svg", {viewBox: "0 0 620 210", role: "img", "aria-label": `${stage === "qwen" ? "Qwen" : "FLUX"} ${series.map(([, label]) => label).join(" and ")}, Live. Same vertical scale; see chart data table for values.`});
     for (const ratio of [0, .5, 1]) {
       const position = y(max * ratio), value = max * ratio;
       const label = value >= 1e15 ? value.toExponential(1).replace("+", "") : value.toLocaleString("en-GB", {notation: "compact", maximumFractionDigits: 1});
@@ -246,8 +245,6 @@
     chart.replaceChildren(svg);
   }
   function renderReports(report) {
-    if (!state.modeExplicit) state.mode = ["live", "synthetic", "unknown"].find(mode => report.models.some(model => model.execution_mode === mode)) || "unknown";
-    $("usage-mode").value = state.mode;
     for (const stage of ["qwen", "flux"]) renderChart(stage, report, renderModelRows(stage, report));
     $("usage-undated-note").hidden = !(report.timeline?.unbucketed_invocations > 0);
   }
@@ -322,12 +319,6 @@
     state.window = $("usage-window").value === "all" ? "all" : "today";
     try { const url = new URL(window.location.href); url.searchParams.set("period", state.window); url.searchParams.delete("window"); window.history.replaceState(null, "", url); } catch { /* Display still works without URL preference updates. */ }
     refreshUsage();
-  });
-  $("usage-mode").addEventListener("change", () => {
-    if (state.expired || !state.report) return;
-    const mode = $("usage-mode").value;
-    if (!Object.hasOwn(modeLabels, mode)) return;
-    state.mode = mode; state.modeExplicit = true; renderReports(state.report);
   });
   window.addEventListener("pulsefeed:admin-expired", () => expire());
   window.addEventListener("focus", async () => {

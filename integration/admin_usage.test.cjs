@@ -21,7 +21,7 @@ class Element {
 const quotas = (limit = 100, articles = 10) => ({ global: { limit, used: 3, reserved: 2, uncertain_charged: 1, charged: 6, remaining: Math.max(0, limit - 6), window_start: 1791936000, reset_at: 1792022400 }, page: { article_limit: articles, max_articles: 10 }, hourly: {limit: 30, used: 4, remaining: 26, window_seconds: 3600, next_slot_at: 1791972000} });
 const metric = (total, reported = 1, missing = 0) => ({ total, reported, missing });
 function model(stage = 'qwen') {
-  return { stage, model_id: stage === 'qwen' ? 'nvidia/Qwen3-8B-NVFP4' : 'black-forest-labs/FLUX.2-klein-4B', execution_mode: 'synthetic', invocations: 2, succeeded: 1, failed: 1, pending: 0, unknown: 0,
+  return { stage, model_id: stage === 'qwen' ? 'nvidia/Qwen3-8B-NVFP4' : 'black-forest-labs/FLUX.2-klein-4B', execution_mode: 'live', invocations: 2, succeeded: 1, failed: 1, pending: 0, unknown: 0,
     tokens_applicable: stage === 'qwen', images_applicable: stage === 'flux', input_tokens: metric(20, 1, 1), output_tokens: metric(null, 0, 2), total_tokens: metric(null, 0, 2), image_count: metric(0, 1, 1), inference_attempts: metric(2, 1, 1), inference_retries: metric(1, 1, 1) };
 }
 const report = (window = 'today', limit = 100, articles = 10) => ({ window, generated_at: 1791972000, models: [model(), model('flux')], quotas: quotas(limit, articles) });
@@ -117,7 +117,7 @@ async function check(name, run) { await run(); count++; console.log(`PASS ${name
     const h = setup(); await h.hooks.start();
     assert.equal(posts(h).length, 0); assert.equal(h.requests[0].url, '/api/admin/usage?window=today');
     const text = h.elements.get('usage-rows').textContent;
-    for (const value of ['Synthetic demo', 'Unavailable', 'Known subtotal']) assert(text.includes(value), value);
+    for (const value of ['Live', 'Unavailable', 'Known subtotal']) assert(text.includes(value), value);
     assert(!text.includes('calls reported'));
     assert.equal(h.elements.get('quota-remaining').textContent, '94');
   });
@@ -131,15 +131,16 @@ async function check(name, run) { await run(); count++; console.log(`PASS ${name
     assert.equal(cells[6].textContent,'0');
     assert(!rows.textContent.includes('calls reported'));assert(!/\d+ \/ \d+/.test(rows.textContent));
   });
-  await check('split reports default to live and preserve explicit synthetic/unknown separation without another request',async()=>{
-    const data=report();data.models=[{...model(),execution_mode:'synthetic',model_id:'synthetic-only'}, {...model(),execution_mode:'live',model_id:'live-only'}, {...model('flux'),execution_mode:'live'}, {...model(),execution_mode:'unknown',model_id:null}];
-    const h=setup();h.hooks.renderUsage(data);assert.equal(h.hooks.state.mode,'live');assert(h.elements.get('qwen-usage-rows').textContent.includes('live-only'));assert(!h.elements.get('qwen-usage-rows').textContent.includes('synthetic-only'));assert.equal(h.elements.get('flux-usage-rows').children[0].children.length,5);
-    h.elements.get('usage-mode').value='synthetic';h.elements.get('usage-mode').listeners.change();assert(h.elements.get('qwen-usage-rows').textContent.includes('synthetic-only'));assert(!h.elements.get('qwen-usage-rows').textContent.includes('live-only'));
-    assert(h.elements.get('flux-usage-rows').textContent.includes('No FLUX calls'));h.elements.get('usage-mode').value='unknown';h.elements.get('usage-mode').listeners.change();assert(h.elements.get('qwen-usage-rows').textContent.includes('Unverified model'));
-    h.hooks.renderUsage(data);assert.equal(h.hooks.state.mode,'unknown');assert.equal(h.requests.length,0);
+  await check('mixed legacy snapshots show only confirmed live tables and chart values',async()=>{
+    const data=timelineReport();data.models=[{...model(),execution_mode:'synthetic',model_id:'synthetic-only',input_tokens:metric(999)}, {...model(),model_id:'live-only'}, model('flux'), {...model(),execution_mode:'unknown',model_id:'unknown-only',input_tokens:metric(999)}, {...model(),model_id:null,input_tokens:metric(999)}];
+    data.timeline.buckets[0].models=data.models;
+    const h=setup();h.hooks.renderUsage(data);
+    const text=h.elements.get('usage-rows').textContent;assert(text.includes('live-only'));for(const value of ['synthetic-only','unknown-only','Unverified model'])assert(!text.includes(value));
+    assert.equal(h.elements.get('qwen-bucket-rows').children[0].children[1].textContent,'20 · Known subtotal');
+    assert.equal(h.elements.get('qwen-chart-mode').textContent,'Live');assert(!h.elements.has('usage-mode'));assert.equal(h.requests.length,0);
   });
-  await check('mode defaults prefer synthetic then unknown when live measurements are absent',async()=>{
-    for(const mode of ['synthetic','unknown']){const data=report();data.models=data.models.map(model=>({...model,execution_mode:mode}));const h=setup();h.hooks.renderUsage(data);assert.equal(h.hooks.state.mode,mode);assert.equal(h.elements.get('usage-mode').value,mode);}
+  await check('synthetic or unknown history never becomes a fallback activity',async()=>{
+    for(const mode of ['synthetic','unknown']){const data=timelineReport();data.models=data.models.map(model=>({...model,execution_mode:mode}));data.timeline.buckets[0].models=data.models;const h=setup();h.hooks.renderUsage(data);assert(h.elements.get('qwen-usage-rows').textContent.includes('No live Qwen calls'));assert(h.elements.get('flux-usage-chart').textContent.includes('No live calls'));assert.equal(h.elements.get('quota-used').textContent,'3');assert.equal(h.elements.get('qwen-chart-mode').textContent,'Live');}
   });
   await check('hourly charts overlay one shared scale, break missing measurements and keep future hours as gaps',async()=>{
     const data=timelineReport();const first={...model(),input_tokens:metric(100),output_tokens:metric(20)},gap={...model(),input_tokens:metric(null,0,2),output_tokens:metric(null,0,2)},partial={...model(),input_tokens:metric(0,1,1),output_tokens:metric(10)};
@@ -180,7 +181,7 @@ async function check(name, run) { await run(); count++; console.log(`PASS ${name
     }
   });
   await check('empty modes and missing metrics never fabricate a synthetic/live merged graph',async()=>{
-    const data=timelineReport();data.models=[];const h=setup();h.hooks.renderUsage(data);assert.equal(h.hooks.state.mode,'unknown');assert(h.elements.get('qwen-usage-chart').textContent.includes('No calls recorded'));
+    const data=timelineReport();data.models=[];const h=setup();h.hooks.renderUsage(data);assert(h.elements.get('qwen-usage-chart').textContent.includes('No live calls recorded'));
     const partial=h.hooks.bucketMetric([{...model(),input_tokens:metric(0,1,1)},{...model(),input_tokens:metric(null,0,2)}],'input_tokens');assert.equal(partial.total,0);assert.equal(partial.partial,true);
   });
   await check('hostile model labels remain plain text and expiry clears both tables and graphs before stale reads settle',async()=>{
@@ -193,12 +194,11 @@ async function check(name, run) { await run(); count++; console.log(`PASS ${name
     assert(rows[2].textContent.includes('In progress'));assert(!rows[2].textContent.includes('Not yet elapsed'));assert(rows[3].textContent.includes('Not yet elapsed'));
     data.window='all';data.timeline.bucket_seconds=86400;data.timeline.start='2024-01-01T00:00:00.000Z';data.timeline.end='2024-01-02T00:00:00.000Z';data.timeline.buckets=[{start:data.timeline.start,end:data.timeline.end,models:[model()]}];h.hooks.renderUsage(data);assert(!h.elements.get('qwen-chart-note').textContent.includes('Current bucket'));
   });
-  await check('period mismatch cannot replace a valid graph and a mode edit during a read remains selected',async()=>{
+  await check('period mismatch cannot replace a valid live graph',async()=>{
     const pending=deferred(),data=timelineReport(),h=setup(()=>pending.promise);h.hooks.renderUsage(data);const old=h.elements.get('qwen-usage-chart').children[0];const read=h.hooks.refreshUsage();
-    h.elements.get('usage-mode').value='unknown';h.elements.get('usage-mode').listeners.change();const changed=h.elements.get('qwen-usage-chart').children[0];assert.notEqual(old,changed);
-    pending.resolve(response({...data,window:'all'}));await read;assert.equal(h.hooks.state.report.window,'today');assert.equal(h.hooks.state.mode,'unknown');assert.equal(h.elements.get('qwen-usage-chart').children[0],changed);assert(h.elements.get('admin-feedback').textContent.includes('period did not match'));
+    pending.resolve(response({...data,window:'all'}));await read;assert.equal(h.hooks.state.report.window,'today');assert.equal(h.elements.get('qwen-usage-chart').children[0],old);assert(h.elements.get('admin-feedback').textContent.includes('period did not match'));
   });
-  await check('SSR separates model columns and chooses the same initial mode as client hydration',async()=>{
+  await check('SSR and client hydration both show only live activity',async()=>{
     const code=`import json,sys
 from html.parser import HTMLParser
 from jinja2 import Environment,FileSystemLoader,StrictUndefined
@@ -208,16 +208,13 @@ env=Environment(loader=FileSystemLoader('app/pulsefeed/templates'),undefined=Str
 env.globals.update(asset_url=lambda name:'/static/'+name,utc_timestamp=lambda value:'00:00 UTC')
 html=env.get_template('admin.html').render(account={'id':'admin','role':'admin'},csrf='test',fake_mode=False,settings=DEFAULT_SETTINGS,quotas=report['quotas'],usage=report,period=report['window'])
 class Parser(HTMLParser):
- def __init__(self):super().__init__();self.ids=[];self.body=None;self.text={'qwen':'','flux':''};self.mode=None;self.inmode=False
+ def __init__(self):super().__init__();self.ids=[];self.body=None;self.text={'qwen':'','flux':''}
  def handle_starttag(self,tag,attrs):
   attrs=dict(attrs)
   if attrs.get('id'):self.ids.append(attrs['id'])
   if tag=='tbody' and attrs.get('id') in ('qwen-usage-rows','flux-usage-rows'):self.body=attrs['id'].split('-')[0]
-  if tag=='select':self.inmode=attrs.get('id')=='usage-mode'
-  if tag=='option' and self.inmode and 'selected' in attrs:self.mode=attrs['value']
  def handle_endtag(self,tag):
   if tag=='tbody':self.body=None
-  if tag=='select':self.inmode=False
  def handle_data(self,text):
   if self.body:self.text[self.body]+=text
 p=Parser();p.feed(html)
@@ -226,12 +223,14 @@ assert 'Input tokens' not in html.split('flux-usage-table',1)[1].split('</table>
 assert 'Output tokens' not in html.split('flux-usage-table',1)[1].split('</table>',1)[0]
 assert 'calls reported' not in html
 assert html.index('id="overview-heading"')<html.index('id="prompt-settings-heading"')<html.index('id="limits-section"')<html.index('id="model-usage-section"')
-print(json.dumps({'mode':p.mode,'text':p.text}))`;
+assert 'id=\"usage-mode\"' not in html
+assert 'Live activity' in html and 'Synthetic demo' not in html and 'Unknown mode' not in html
+print(json.dumps({'text':p.text}))`;
     const {execFileSync}=require('node:child_process');
     for(const modes of [['synthetic','live','unknown'],['synthetic'],['unknown']]){
       const data=report();data.models=modes.flatMap(mode=>[{...model(),execution_mode:mode,model_id:`${mode}-qwen`},{...model('flux'),execution_mode:mode,model_id:`${mode}-flux`}]);const h=setup();h.hooks.renderUsage(data);
       const rendered=JSON.parse(execFileSync(process.env.PULSEFEED_PYTHON || path.join(root,'app/.venv/bin/python'),['-c',code],{cwd:root,input:JSON.stringify(data),encoding:'utf8',env:{...process.env,PYTHONPATH:path.join(root,'app')}}));
-      assert.equal(rendered.mode,h.hooks.state.mode);for(const stage of ['qwen','flux']){assert(rendered.text[stage].includes(`${rendered.mode}-${stage}`));for(const other of modes.filter(mode=>mode!==rendered.mode))assert(!rendered.text[stage].includes(`${other}-${stage}`));}
+      for(const stage of ['qwen','flux']){const text=rendered.text[stage],client=h.elements.get(`${stage}-usage-rows`).textContent;if(modes.includes('live')){assert(text.includes(`live-${stage}`));assert(client.includes(`live-${stage}`));}else{assert(text.includes('No live'));assert(client.includes('No live'));}for(const other of modes.filter(mode=>mode!=='live')){assert(!text.includes(`${other}-${stage}`));assert(!client.includes(`${other}-${stage}`));}}
     }
   });
   await check('hourly starts stay a read-only summary independent of daily mutation fields', async () => {
