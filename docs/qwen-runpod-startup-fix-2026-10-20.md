@@ -89,6 +89,8 @@ Retry counter fields remain present and zero to preserve the app/worker response
 
 ## Release and rollback
 
+The later [v1.0.6 CA update](qwen-ca-bundle-update-2026-10-20.md) supersedes the cleanup candidate for deployment. The references below remain the historical startup/cleanup and rollback record.
+
 The known-working cloud release is unchanged:
 
 ```text

@@ -4021,7 +4021,7 @@
     "cachetools": "7.2.3",
     "caio": "0.12.9",
     "cbor2": "6.1.5",
-    "certifi": "2026.7.22",
+    "certifi": "2026.10.19",
     "cffi": "2.1.1",
     "charset-normalizer": "3.5.2",
     "click": "8.5.0",
@@ -4270,6 +4270,12 @@
     "zipp": "4.1.1"
   },
   "overlay": {
+    "certifi": {
+      "requires_dist": [],
+      "sha256": "42d35340cc5b9ba78e818ddbff0c5b1c2b779de448a340fd1b989f5fa8670e1b",
+      "version": "2026.10.19",
+      "wheel": "certifi-2026.10.19-py3-none-any.whl"
+    },
     "opentelemetry-api": {
       "requires_dist": [
         "typing-extensions>=4.5.0"
@@ -4429,7 +4435,7 @@
       "wheel": "setuptools-80.10.2+pulsefeed.ghsah35f.3-py3-none-any.whl"
     }
   },
-  "pip_report_sha256": "17c9d3b4e08d9cdddebe155192ff5ab4a448eb521a3a5a1ab7059866c0a39d87",
+  "pip_report_sha256": "49f83981167e603e257cdd8d1730126122d3a86fed731b4c778135046ee26687",
   "pip_version": "26.2.1",
   "report_environment": {
     "platform_machine": "aarch64",

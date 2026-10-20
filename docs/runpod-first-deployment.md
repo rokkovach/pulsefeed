@@ -1,15 +1,15 @@
 # Prepare the models before Railway
 
 
-Qwen cleanup release: `rokkovach/pulsefeed:qwen-v1.0.5-20261020`. The working rollback release is `qwen-v1.0.4-20261020`; FLUX compact release is `flux-v1.0.2-20261020`, with `flux-v1.0.1-20261020` preserved for rollback. See the [startup fixes, cleanup validation and rollback record](qwen-runpod-startup-fix-2026-10-20.md).
+Qwen CA-update release: `rokkovach/pulsefeed:qwen-v1.0.6-20261020`. The earlier Qwen v1.0.4/v1.0.5 releases remain available for rollback; both retain the older certificate bundle. FLUX compact release is `flux-v1.0.2-20261020`, with `flux-v1.0.1-20261020` preserved for rollback. See the [CA update and rollout record](qwen-ca-bundle-update-2026-10-20.md).
 
 Both cloud workers use `runpod.serverless.start` with separately pinned SDKs: Qwen uses the selective **1.10.0+pulsefeed.security.1** compatibility/security backport, while FLUX uses upstream **1.12.0**. The Qwen backport preserves compatible dependency declarations and selected official fixes; it is not full upstream 1.12 equivalence. See its [rebuild/provenance record](../workers/qwen/vendor/runpod/README.md). Deploy their custom images as two queue endpoints; the app calls those endpoints.
 
-The earlier native Spark images passed a 27-image application flow; packaging and dependency scan evidence is in the [remediation report](dependency-remediation-2026-10-20.md). The operator subsequently confirmed real Qwen Runpod inference on v1.0.4. The v1.0.5 cleanup passed local SDK/contract tests and first/warm native Spark inference; its Runpod queue smoke is still pending. The original FLUX v1.0.1 also passed a real cloud image request; compact FLUX v1.0.2 and connected Railway generation remain deployment gates. The [Railway web app](cloud-release-2026-10-20.md) is deployed with real generation paused. See [dependency security](dependency-security.md) for retained findings.
+The earlier native Spark images passed a 27-image application flow; packaging and dependency scan evidence is in the [remediation report](dependency-remediation-2026-10-20.md). The operator subsequently confirmed real Qwen Runpod inference on v1.0.4. The current Qwen v1.0.6 passed worker/SDK tests, actual AMD64 dependency/import gates and first/warm native Spark inference. Its Runpod queue smoke awaits the endpoint rollout. A later local app run completed ten real 512-square images through both live endpoints. The latest Railway app is deployed with generation paused until the patched Qwen rollout and cloud smoke. The [release summary](release-status.md) records current image identities and remaining gates; [dependency security](dependency-security.md) records retained findings.
 
 ## Current public release — October 20, 2026
 
-Use `docker.io/rokkovach/pulsefeed:qwen-v1.0.5-20261020` and `docker.io/rokkovach/pulsefeed:flux-v1.0.2-20261020`, using the [Qwen cleanup digest/rollback record](qwen-runpod-startup-fix-2026-10-20.md#release-and-rollback) and [compact FLUX release/rollback guide](flux-compact-images-2026-10-20.md#safe-deployment-order). Both are public and verified for anonymous registry access. **These images are already built and published: continue at step 2.** Step 1 is for subsequent releases.
+Use `docker.io/rokkovach/pulsefeed:qwen-v1.0.6-20261020` and `docker.io/rokkovach/pulsefeed:flux-v1.0.2-20261020`, using the [Qwen CA-update digest and rollout record](qwen-ca-bundle-update-2026-10-20.md) and [compact FLUX release/rollback guide](flux-compact-images-2026-10-20.md#safe-deployment-order). Both are public and verified for anonymous registry access. **These images are already built and published: continue at step 2.** Step 1 is for subsequent releases.
 
 ## Historical candidate — October 16, 2026
 

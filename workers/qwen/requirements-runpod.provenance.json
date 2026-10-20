@@ -3905,7 +3905,7 @@
     "cachetools": "7.2.3",
     "caio": "0.12.9",
     "cbor2": "6.1.5",
-    "certifi": "2026.7.22",
+    "certifi": "2026.10.19",
     "cffi": "2.1.1",
     "charset-normalizer": "3.5.2",
     "click": "8.5.0",
@@ -4199,6 +4199,12 @@
       "sha256": "072e7624b1fc4d601036ab3f4f27942ef772887e876beff0301d261210bca97f",
       "version": "1.2.0",
       "wheel": "brotli-1.2.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl"
+    },
+    "certifi": {
+      "requires_dist": [],
+      "sha256": "42d35340cc5b9ba78e818ddbff0c5b1c2b779de448a340fd1b989f5fa8670e1b",
+      "version": "2026.10.19",
+      "wheel": "certifi-2026.10.19-py3-none-any.whl"
     },
     "colorama": {
       "requires_dist": [],
@@ -4519,7 +4525,7 @@
       "wheel": "wcwidth-0.9.2-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl"
     }
   },
-  "pip_report_sha256": "903dec9d0717cf02ca56e870aebf955deeeca0c0f6db12a6a84fc6b5699434e7",
+  "pip_report_sha256": "b032c8b91f35a500834f085cac08dee75c90161b9bfa64050b8b31b4bc34a50f",
   "pip_version": "26.2.1",
   "report_environment": {
     "platform_machine": "x86_64",

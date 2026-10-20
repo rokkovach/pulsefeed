@@ -6,7 +6,7 @@ An independent Runpod queue worker for `nvidia/Qwen3-8B-NVFP4`, pinned to revisi
 
 ## Status and runtime
 
-The working cloud release **v1.0.4** completed real Runpod inference with NVFP4. The separately published **v1.0.5 cleanup** passed 92 local worker/SDK tests and first/warm real Spark inference; its Runpod queue smoke is pending. Earlier maintained images passed actual-image CPU packaging tests and a 27-image application flow. Hardware-specific results must not be generalized to untested GPUs. See the [startup/cleanup record](../../docs/qwen-runpod-startup-fix-2026-10-20.md) and [packaging evidence](../../local/PACKAGING_VALIDATION.md).
+The current **v1.0.6 CA update** passed 92 worker/SDK tests, 29 lock-helper tests, actual AMD64 dependency/import gates and first/warm real Spark inference. Its Runpod queue smoke awaits the endpoint rollout. The working cloud **v1.0.4** and cleanup **v1.0.5** images are retained with their older certificate bundles. Earlier maintained images passed a 27-image application flow. Hardware-specific results must not be generalized to untested GPUs. See the [CA update and rollout](../../docs/qwen-ca-bundle-update-2026-10-20.md), [startup/cleanup record](../../docs/qwen-runpod-startup-fix-2026-10-20.md) and [packaging evidence](../../local/PACKAGING_VALIDATION.md).
 
 | Component | Cloud pin / behavior |
 | --- | --- |
