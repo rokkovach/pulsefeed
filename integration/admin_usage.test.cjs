@@ -136,7 +136,7 @@ async function check(name, run) { await run(); count++; console.log(`PASS ${name
     data.timeline.buckets[0].models=data.models;
     const h=setup();h.hooks.renderUsage(data);
     const text=h.elements.get('usage-rows').textContent;assert(text.includes('live-only'));for(const value of ['synthetic-only','unknown-only','Unverified model'])assert(!text.includes(value));
-    assert.equal(h.elements.get('qwen-bucket-rows').children[0].children[1].textContent,'20 · Known subtotal');
+    assert.equal(h.elements.get('qwen-bucket-rows').children.at(-1).children[1].textContent,'20 · Known subtotal');
     assert.equal(h.elements.get('qwen-chart-mode').textContent,'Live');assert(!h.elements.has('usage-mode'));assert.equal(h.requests.length,0);
   });
   await check('synthetic or unknown history never becomes a fallback activity',async()=>{
@@ -149,12 +149,12 @@ async function check(name, run) { await run(); count++; console.log(`PASS ${name
     assert.equal(paths.length,2);assert.equal((primary.attributes.d.match(/M/g)||[]).length,2);assert(!primary.attributes.d.includes('NaN'));assert(!primary.attributes.d.includes('Infinity'));
     const dots=svg.children.filter(node=>node.tagName==='CIRCLE');assert.equal(dots.length,4);assert(dots.some(node=>node.attributes.class.includes('partial')));
     const outputFirst=dots.find(node=>node.attributes.class==='usage-chart-dot series-1');assert.equal(Number(outputFirst.attributes.cy),140); // 20/100 on the same140px scale.
-    const rows=h.elements.get('qwen-bucket-rows').children;assert(rows[1].textContent.includes('Unavailable'));assert(rows[2].textContent.includes('0 · Known subtotal'));assert(rows[3].textContent.includes('Future-dated measurement'));assert(rows[3].textContent.includes('900'));assert(rows[4].textContent.includes('Not yet elapsed'));
+    const rows=h.elements.get('qwen-bucket-rows').children;assert(rows[22].textContent.includes('Unavailable'));assert(rows[21].textContent.includes('0 · Known subtotal'));assert(rows[20].textContent.includes('Future-dated measurement'));assert(rows[20].textContent.includes('900'));assert(rows[19].textContent.includes('Not yet elapsed'));
     assert.equal(h.requests.length,0);
   });
   await check('elapsed empty buckets represent zero calls while pending rows with missing measurements remain gaps',async()=>{
     const data=timelineReport();data.timeline.buckets[1].models=[{...model(),pending:2,succeeded:0,failed:0,input_tokens:metric(null,0,2),output_tokens:metric(null,0,2)}];
-    const h=setup();h.hooks.renderUsage(data);const rows=h.elements.get('qwen-bucket-rows').children;assert.equal(rows[0].children[1].textContent,'0');assert.equal(rows[1].children[1].textContent,'Unavailable');assert.equal(rows[23].children[1].textContent,'Not yet elapsed');
+    const h=setup();h.hooks.renderUsage(data);const rows=h.elements.get('qwen-bucket-rows').children;assert.equal(rows[23].children[1].textContent,'0');assert.equal(rows[22].children[1].textContent,'Unavailable');assert.equal(rows[0].children[1].textContent,'Not yet elapsed');
   });
   await check('mobile tick labels fit a reserved gutter while exact data-table values remain unchanged',async()=>{
     for(const total of [1301,1999000,1e308]){
@@ -163,17 +163,17 @@ async function check(name, run) { await run(); count++; console.log(`PASS ${name
       assert.equal(ticks.length,3);for(const tick of ticks){assert.equal(tick.attributes.x,'76');assert(tick.textContent.length<=7);assert(Number(tick.attributes.x)-tick.textContent.length*17*.6>=0);}
       const grid=svg.children.find(node=>node.tagName==='LINE');assert.equal(grid.attributes.x1,'84');
       const path=svg.children.find(node=>node.tagName==='PATH');assert(path.attributes.d.startsWith('M84.00,'));
-      assert(h.elements.get('qwen-bucket-rows').children[0].textContent.includes(total.toLocaleString()));
+      assert(h.elements.get('qwen-bucket-rows').children.at(-1).textContent.includes(total.toLocaleString()));
       if(total===1301)assert.equal(ticks[1].textContent,'650.5');
     }
   });
   await check('FLUX charts plot images and attempts only without multiplying either metric',async()=>{
     const data=timelineReport();data.timeline.buckets[0].models=[{...model('flux'),image_count:metric(2),inference_attempts:metric(5)}];const h=setup();h.hooks.renderUsage(data);
-    const row=h.elements.get('flux-bucket-rows').children[0];assert.equal(row.children[1].textContent,'2');assert.equal(row.children[2].textContent,'5');const svg=h.elements.get('flux-usage-chart').children[0];assert(svg.attributes['aria-label'].includes('Images and Attempts'));assert(!svg.attributes['aria-label'].includes('token'));
+    const row=h.elements.get('flux-bucket-rows').children.at(-1);assert.equal(row.children[1].textContent,'2');assert.equal(row.children[2].textContent,'5');const svg=h.elements.get('flux-usage-chart').children[0];assert(svg.attributes['aria-label'].includes('Images and Attempts'));assert(!svg.attributes['aria-label'].includes('token'));
   });
   await check('all-time multiday charts accept a short final bucket and explain undated totals',async()=>{
     const data=report('all'),start=Date.UTC(2024,0,1),end=start+801*86400000,width=7*86400000;data.generated_at=new Date(end).toISOString();data.timeline={start:new Date(start).toISOString(),end:new Date(end).toISOString(),bucket_seconds:7*86400,unbucketed_invocations:2,buckets:Array.from({length:115},(_,index)=>({start:new Date(start+index*width).toISOString(),end:new Date(Math.min(end,start+(index+1)*width)).toISOString(),models:[]}))};
-    data.timeline.buckets[0].models=[model()];const h=setup();assert.equal(h.hooks.validTimeline(data),true);h.hooks.renderUsage(data);assert.equal(h.elements.get('usage-undated-note').hidden,false);assert(h.elements.get('qwen-chart-note').textContent.includes('7-day buckets'));assert.equal(h.elements.get('qwen-bucket-rows').children.length,115);
+    data.timeline.buckets[0].models=[model()];const h=setup();assert.equal(h.hooks.validTimeline(data),true);h.hooks.renderUsage(data);assert.equal(h.elements.get('usage-undated-note').hidden,false);assert(h.elements.get('qwen-chart-note').textContent.includes('7-day buckets'));assert.equal(h.elements.get('qwen-bucket-rows').children.length,115);for(const stage of ['qwen','flux']){const rows=h.elements.get(`${stage}-bucket-rows`).children;assert(rows[0].children[0].textContent.includes('2026'));assert(rows.at(-1).children[0].textContent.includes('2024'));}assert.equal(data.timeline.buckets[0].start,data.timeline.start);
   });
   await check('missing or malformed timelines leave honest chart placeholders while preserving aggregate totals',async()=>{
     const valid=timelineReport();for(const mutate of [data=>delete data.timeline,data=>{data.timeline.buckets[0].end='bad';},data=>{data.timeline.buckets[0].models[0]={...model(),input_tokens:metric(Infinity)};},data=>{data.timeline.buckets=Array(121).fill(data.timeline.buckets[0]);},data=>{data.timeline.buckets[1].start=data.timeline.buckets[0].start;}]){
@@ -191,7 +191,7 @@ async function check(name, run) { await run(); count++; console.log(`PASS ${name
   });
   await check('current-hour boundary is open and old all-time ranges never claim a current bucket',async()=>{
     const data=timelineReport();data.generated_at=data.timeline.buckets[2].start;const h=setup();h.hooks.renderUsage(data);const rows=h.elements.get('qwen-bucket-rows').children;
-    assert(rows[2].textContent.includes('In progress'));assert(!rows[2].textContent.includes('Not yet elapsed'));assert(rows[3].textContent.includes('Not yet elapsed'));
+    assert(rows[21].textContent.includes('In progress'));assert(!rows[21].textContent.includes('Not yet elapsed'));assert(rows[20].textContent.includes('Not yet elapsed'));
     data.window='all';data.timeline.bucket_seconds=86400;data.timeline.start='2024-01-01T00:00:00.000Z';data.timeline.end='2024-01-02T00:00:00.000Z';data.timeline.buckets=[{start:data.timeline.start,end:data.timeline.end,models:[model()]}];h.hooks.renderUsage(data);assert(!h.elements.get('qwen-chart-note').textContent.includes('Current bucket'));
   });
   await check('period mismatch cannot replace a valid live graph',async()=>{

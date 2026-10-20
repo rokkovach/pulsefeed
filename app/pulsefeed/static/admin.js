@@ -205,7 +205,8 @@
       return {bucket, future: timestamp(bucket.start) > generated, futureRecorded: timestamp(bucket.start) > generated && selected.length > 0, open: timestamp(bucket.start) <= generated && generated < timestamp(bucket.end),
         values: series.map(([key]) => bucketMetric(selected, key))};
     }) : [];
-    const tableRows = points.map(point => {
+    // Reverse a copy for the table; chart points remain chronological.
+    const tableRows = [...points].reverse().map(point => {
       const row = node("tr"), label = node("th", "", `${bucketLabel(point.bucket, hourly)}${point.open ? " · In progress" : point.futureRecorded ? " · Future-dated measurement (not plotted)" : ""}`); label.scope = "row"; row.append(label);
       for (const value of point.values) row.append(node("td", value.partial ? "partial-coverage" : "", pointValue(value, point.future && !point.futureRecorded)));
       return row;
