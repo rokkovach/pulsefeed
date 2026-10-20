@@ -1,0 +1,35 @@
+%% Editable semantic companion to local-vs-cloud.svg. Evidence: 2026-10-20.
+%%{init: {'theme':'base','themeVariables':{'background':'#FAF9F6','primaryColor':'#DED8F8','primaryTextColor':'#25283D','primaryBorderColor':'#25283D','lineColor':'#25283D','secondaryColor':'#CEF0DE','tertiaryColor':'#FFDCC7','fontFamily':'Inter, Arial, sans-serif','fontSize':'18px'}}}%%
+flowchart TB
+  subgraph Local[Actual · laptop + DGX Spark]
+    L[Laptop FastAPI + SQLite<br/>One coordinator; local_http provider]
+    subgraph Spark[Spark · GB10 / ARM64 / SM121]
+      QL[Qwen NVFP4<br/>Authenticated loopback gateway<br/>One active invocation]
+      FL[FLUX BF16<br/>Authenticated loopback gateway<br/>One active invocation]
+      Lock[Both resident; shared lock serializes actual GPU calls<br/>Transport / status work may overlap]
+      QL --- Lock
+      FL --- Lock
+    end
+    L <-->|SSH tunnel| QL
+    L <-->|SSH tunnel| FL
+    Evidence[Native GPU verified<br/>27 images; 54 successful calls; zero retries]
+    Spark --- Evidence
+  end
+  subgraph Cloud[Runpod verified · latest Railway app update pending]
+    R[Railway FastAPI + persistent /data<br/>One replica; one ASGI process / coordinator]
+    subgraph RP[Runpod · AMD64 / Blackwell SM120<br/>RTX 5090 selected by operator · 32 GB]
+      QR[Qwen queue endpoint<br/>App slots 1–3; one GPU; concurrency 1]
+      FR[FLUX queue endpoint<br/>App slots 1–3; one GPU; concurrency 1]
+    end
+    R <-->|Native /run + /status/id| QR
+    R <-->|Native /run + /status/id| FR
+    Gates[Local app to Runpod: 10 images / 20 calls / zero retries<br/>Railway web ingress, volume and auth verified<br/>Latest connected Railway generation flow pending]
+    RP --- Gates
+  end
+  Shared[Shared: Qwen → app → FLUX; app owns admission + accounting<br/>Fixed model revisions / presets<br/>Persistent SQLite metadata; browser Blobs until original view expiry<br/>Temporary provider output; no permanent image archive]
+  Local --- Shared
+  Cloud --- Shared
+  classDef mint fill:#CEF0DE,stroke:#25283D,color:#25283D;
+  classDef peach fill:#FFDCC7,stroke:#25283D,color:#25283D;
+  class Evidence,Lock mint;
+  class FL,FR,Gates peach;

@@ -1,0 +1,17 @@
+PulseFeed reviewer handoff
+20 October 2026
+
+Start with pulsefeed-review.pdf for the six-page case study.
+Use pulsefeed-review.docx to edit the same report.
+The optional pulsefeed-one-pager.pdf is a shorter introduction.
+
+The diagrams folder contains scalable SVGs, PNG previews and editable
+Mermaid topology sources. Report screenshots and diagram PNGs are in assets.
+
+The controlled laptop-to-Runpod test completed ten 512-square images
+and twenty model calls, with no retries or duplicate invocations.
+The latest connected Railway generation release remains pending redeployment.
+
+Admin credentials are deliberately excluded. Share the password separately.
+The repository includes the source, deployment guides, test commands,
+rollback references and dated evidence behind the report.

@@ -1,0 +1,33 @@
+# syntax=docker/dockerfile:1
+# Root context; fixed BF16 checkpoint with a clean, fully locked CPython/CUDA runtime.
+ARG FLUX_DGX_PLATFORM=linux/arm64
+FROM --platform=${FLUX_DGX_PLATFORM} python:3.12.15-slim-trixie@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1 AS vendor-wheel
+COPY workers/flux/repair_vendor_wheel_tag.py /repair.py
+ADD --checksum=sha256:5c72f727722f74762380e5f8755557c788b26d8fdcc49df1641c1b08e16d256c https://files.pythonhosted.org/packages/fd/f8/a809966c96e824b92df09ee3b7032442f5e975d873d7dadfef818d527f48/nvidia_cusparselt_cu12-0.8.1-py3-none-manylinux2014_aarch64.whl /upstream.whl
+RUN python /repair.py /upstream.whl 5c72f727722f74762380e5f8755557c788b26d8fdcc49df1641c1b08e16d256c /vendor /vendor/repair.json
+
+FROM --platform=${FLUX_DGX_PLATFORM} python:3.12.15-slim-trixie@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1 AS runtime
+WORKDIR /worker
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends ca-certificates libgomp1 libstdc++6 && rm -rf /var/lib/apt/lists/*
+ENV PYTHONUNBUFFERED=1 PYTHONNOUSERSITE=1 PYTHONPATH=/worker \
+    FLUX_RUNTIME_PROFILE=dgx-spark MODEL_CACHE_SOURCE=volume \
+    MODEL_REVISION=e7b7dc27f91deacad38e78976d1f2b499d76a294 \
+    HF_HOME=/models/huggingface HF_HUB_CACHE=/models/huggingface/hub HF_HUB_DISABLE_TELEMETRY=1 HF_HUB_DISABLE_XET=1 \
+    HF_HUB_ETAG_TIMEOUT=10 HF_HUB_DOWNLOAD_TIMEOUT=30 TOKENIZERS_PARALLELISM=false \
+    NVIDIA_VISIBLE_DEVICES=all NVIDIA_DRIVER_CAPABILITIES=compute,utility NVIDIA_IMEX_CHANNELS=0 \
+    FLUX_STARTUP_TIMEOUT_SECONDS=600 FLUX_EXECUTION_TIMEOUT_SECONDS=540 \
+    LOCAL_WORKER_FACTORY=local_factory:create_worker LOCAL_WORKER_PORT=8000 LOCAL_GPU_LOCK=/coordination/gpu.lock
+COPY workers/flux/requirements-bootstrap.lock workers/flux/requirements-dgx.lock /worker/
+RUN --mount=type=cache,id=flux-clean-arm64-pip,target=/root/.cache/pip,sharing=locked python -m pip install --cache-dir=/root/.cache/pip --timeout 120 --retries 5 --require-hashes --only-binary=:all: --no-deps -r requirements-bootstrap.lock
+RUN --mount=from=vendor-wheel,source=/vendor,target=/opt/vendor,ro --mount=type=cache,id=flux-clean-arm64-pip,target=/root/.cache/pip,sharing=locked \
+    python -m pip install --cache-dir=/root/.cache/pip --timeout 120 --retries 5 --resume-retries 5 --find-links=/opt/vendor --no-deps --require-hashes --only-binary=:all: -r requirements-dgx.lock \
+    && python -m pip check \
+    && python -c "import ssl,torch; from diffusers import Flux2KleinPipeline; from transformers import Qwen3ForCausalLM; assert torch.__version__ == '2.13.0+cu129'; assert torch.version.cuda == '12.9'; print(ssl.OPENSSL_VERSION)"
+COPY --from=vendor-wheel /vendor/repair.json /opt/flux-build-evidence/cusparselt-repair.json
+COPY workers/flux/cleanup_bootstrap.py /tmp/cleanup_bootstrap.py
+RUN python /tmp/cleanup_bootstrap.py && rm /tmp/cleanup_bootstrap.py && python -m pip check \
+    && python -m pip freeze --all > /opt/flux-build-evidence/requirements.freeze
+COPY workers/flux/flux_worker.py workers/flux/local_factory.py workers/flux/preflight.py workers/flux/smoke_test.py /worker/
+COPY local/worker_gateway.py /gateway/worker_gateway.py
+EXPOSE 8000
+ENTRYPOINT ["python", "-u", "/gateway/worker_gateway.py"]

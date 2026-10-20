@@ -1,0 +1,295 @@
+{
+  "architecture": "amd64",
+  "artifacts": [
+    {
+      "package": "coreutils",
+      "version": "9.4-3ubuntu6.3",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/c/coreutils/coreutils_9.4-3ubuntu6.3_amd64.deb",
+      "filename": "coreutils_9.4-3ubuntu6.3_amd64.deb",
+      "sha256": "e1e9a17892be0cc83b7cea747edf331ffeb6d6c010b4db296e60d888e8e9274c",
+      "bytes": 1413428
+    },
+    {
+      "package": "diffutils",
+      "version": "1:3.10-1ubuntu0.1",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/d/diffutils/diffutils_3.10-1ubuntu0.1_amd64.deb",
+      "filename": "diffutils_1%3a3.10-1ubuntu0.1_amd64.deb",
+      "sha256": "c2acc7889f1d75986c40bee57c0875c02146a9c8833980abfb0a6c62c52301d3",
+      "bytes": 177224
+    },
+    {
+      "package": "gzip",
+      "version": "1.12-1ubuntu3.2",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/g/gzip/gzip_1.12-1ubuntu3.2_amd64.deb",
+      "filename": "gzip_1.12-1ubuntu3.2_amd64.deb",
+      "sha256": "4067522fbffe22672e4cf683bfc32e4a304bc872cf76f10049ab36d1a9eedb91",
+      "bytes": 99204
+    },
+    {
+      "package": "ncurses-bin",
+      "version": "6.4+20240113-1ubuntu2.2",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/ncurses-bin_6.4%2b20240113-1ubuntu2.2_amd64.deb",
+      "filename": "ncurses-bin_6.4+20240113-1ubuntu2.2_amd64.deb",
+      "sha256": "897a9d87aebfd92ed47223faef6ce40fa19196309ee98cfd8479ed38e5f75773",
+      "bytes": 188372
+    },
+    {
+      "package": "sed",
+      "version": "4.9-2ubuntu0.24.04.1",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/s/sed/sed_4.9-2ubuntu0.24.04.1_amd64.deb",
+      "filename": "sed_4.9-2ubuntu0.24.04.1_amd64.deb",
+      "sha256": "5406c0950df2653be3d4acaf9f169c51d30cf4a617b63423e64d2853b0d72b5c",
+      "bytes": 193590
+    },
+    {
+      "package": "tar",
+      "version": "1.35+dfsg-3ubuntu0.4",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/t/tar/tar_1.35%2bdfsg-3ubuntu0.4_amd64.deb",
+      "filename": "tar_1.35+dfsg-3ubuntu0.4_amd64.deb",
+      "sha256": "fdf41a87936824e50c8ac11b0b22d1395aeb0754feef2dae5575b5d5a93793ec",
+      "bytes": 256392
+    },
+    {
+      "package": "ncurses-base",
+      "version": "6.4+20240113-1ubuntu2.2",
+      "architecture": "all",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/ncurses-base_6.4%2b20240113-1ubuntu2.2_all.deb",
+      "filename": "ncurses-base_6.4+20240113-1ubuntu2.2_all.deb",
+      "sha256": "7a00fc1174fbc32ce68bfd2038ca4b8275dc2851f78e911180c0928534682b05",
+      "bytes": 25810
+    },
+    {
+      "package": "libpam0g",
+      "version": "1.5.3-5ubuntu5.7",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/p/pam/libpam0g_1.5.3-5ubuntu5.7_amd64.deb",
+      "filename": "libpam0g_1.5.3-5ubuntu5.7_amd64.deb",
+      "sha256": "1d7f54e77f0455ab5e607cd5e78b576801d8efdc66115e02cf3c6e708d093667",
+      "bytes": 68124
+    },
+    {
+      "package": "libpam-modules-bin",
+      "version": "1.5.3-5ubuntu5.7",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/p/pam/libpam-modules-bin_1.5.3-5ubuntu5.7_amd64.deb",
+      "filename": "libpam-modules-bin_1.5.3-5ubuntu5.7_amd64.deb",
+      "sha256": "e6753b038042cd007843cbc79a81e732d82d0d2415bcf78ff2120c50b5e54f82",
+      "bytes": 51866
+    },
+    {
+      "package": "libpam-modules",
+      "version": "1.5.3-5ubuntu5.7",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/p/pam/libpam-modules_1.5.3-5ubuntu5.7_amd64.deb",
+      "filename": "libpam-modules_1.5.3-5ubuntu5.7_amd64.deb",
+      "sha256": "c8e86ef52e3a743dc67d90f4c6654f7f529deafa6a523fe9076e809785aeea18",
+      "bytes": 286418
+    },
+    {
+      "package": "libattr1",
+      "version": "1:2.5.2-1ubuntu0.1",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/a/attr/libattr1_2.5.2-1ubuntu0.1_amd64.deb",
+      "filename": "libattr1_1%3a2.5.2-1ubuntu0.1_amd64.deb",
+      "sha256": "a99e2e2dfcefbc0e9c99fdc0b284c8b35eaa58744163aaed476de1c93d3c4ef4",
+      "bytes": 11748
+    },
+    {
+      "package": "libgcrypt20",
+      "version": "1.10.3-2ubuntu0.2",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/libg/libgcrypt20/libgcrypt20_1.10.3-2ubuntu0.2_amd64.deb",
+      "filename": "libgcrypt20_1.10.3-2ubuntu0.2_amd64.deb",
+      "sha256": "957b9eeaa83cf6f2d5d5d76dbb8aa31d3297e6781d8a02fa08dcc897ae650a0b",
+      "bytes": 536494
+    },
+    {
+      "package": "libpam-runtime",
+      "version": "1.5.3-5ubuntu5.7",
+      "architecture": "all",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/p/pam/libpam-runtime_1.5.3-5ubuntu5.7_all.deb",
+      "filename": "libpam-runtime_1.5.3-5ubuntu5.7_all.deb",
+      "sha256": "879a23df25b1ba28801c9caf73f1ac36724bdff9834b5a0db7d0ac5ba6f8e191",
+      "bytes": 40754
+    },
+    {
+      "package": "libssl3t64",
+      "version": "3.0.13-0ubuntu3.16",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl3t64_3.0.13-0ubuntu3.16_amd64.deb",
+      "filename": "libssl3t64_3.0.13-0ubuntu3.16_amd64.deb",
+      "sha256": "219f43b1cd836a4da550938db5fda93160d269d39a4edcf1f1ce698a470db797",
+      "bytes": 1945300
+    },
+    {
+      "package": "libncursesw6",
+      "version": "6.4+20240113-1ubuntu2.2",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libncursesw6_6.4%2b20240113-1ubuntu2.2_amd64.deb",
+      "filename": "libncursesw6_6.4+20240113-1ubuntu2.2_amd64.deb",
+      "sha256": "579c9488755d1ddd70f66480cafd2f68776f68314d15d9cf4b5449d0de0fc968",
+      "bytes": 147816
+    },
+    {
+      "package": "libtinfo6",
+      "version": "6.4+20240113-1ubuntu2.2",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libtinfo6_6.4%2b20240113-1ubuntu2.2_amd64.deb",
+      "filename": "libtinfo6_6.4+20240113-1ubuntu2.2_amd64.deb",
+      "sha256": "b67a6df2bdab61d273eabebd208bb6a3fb12618a390a067e1ee305a409ff03d9",
+      "bytes": 108086
+    },
+    {
+      "package": "libsqlite3-0",
+      "version": "3.45.1-1ubuntu2.8",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/s/sqlite3/libsqlite3-0_3.45.1-1ubuntu2.8_amd64.deb",
+      "filename": "libsqlite3-0_3.45.1-1ubuntu2.8_amd64.deb",
+      "sha256": "b1190bb72359f5fcc47406aa46065eaf4f1ca208085c51224a52b04bedc0b4bb",
+      "bytes": 701602
+    },
+    {
+      "package": "dirmngr",
+      "version": "2.4.4-2ubuntu17.6",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/g/gnupg2/dirmngr_2.4.4-2ubuntu17.6_amd64.deb",
+      "filename": "dirmngr_2.4.4-2ubuntu17.6_amd64.deb",
+      "sha256": "3c80161cf0918a3b94b78274bf4c63fafe76f15cc8060898527e0757b1df98fd",
+      "bytes": 323226
+    },
+    {
+      "package": "gpgsm",
+      "version": "2.4.4-2ubuntu17.6",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/g/gnupg2/gpgsm_2.4.4-2ubuntu17.6_amd64.deb",
+      "filename": "gpgsm_2.4.4-2ubuntu17.6_amd64.deb",
+      "sha256": "c19746c589c9cb7fa15de8a21790fef0a0b061c3e2758823536d3ac0973ca51a",
+      "bytes": 231628
+    },
+    {
+      "package": "gnupg-utils",
+      "version": "2.4.4-2ubuntu17.6",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/g/gnupg2/gnupg-utils_2.4.4-2ubuntu17.6_amd64.deb",
+      "filename": "gnupg-utils_2.4.4-2ubuntu17.6_amd64.deb",
+      "sha256": "d27240259f74be5ec4c07ec505d087a3d6a4a66eedef479eb067d8f364263a12",
+      "bytes": 109198
+    },
+    {
+      "package": "gpg-agent",
+      "version": "2.4.4-2ubuntu17.6",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/g/gnupg2/gpg-agent_2.4.4-2ubuntu17.6_amd64.deb",
+      "filename": "gpg-agent_2.4.4-2ubuntu17.6_amd64.deb",
+      "sha256": "7b6778c1d297a4d4e889005917a0b9996a24d704e2e79d52be65b5d1f6b651ce",
+      "bytes": 227154
+    },
+    {
+      "package": "gpg",
+      "version": "2.4.4-2ubuntu17.6",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/g/gnupg2/gpg_2.4.4-2ubuntu17.6_amd64.deb",
+      "filename": "gpg_2.4.4-2ubuntu17.6_amd64.deb",
+      "sha256": "34a775d73a2fe9b6e9205668e39954fe0c1e5c046b1a30c307c7d1e6e22cd1a7",
+      "bytes": 565004
+    },
+    {
+      "package": "gpgconf",
+      "version": "2.4.4-2ubuntu17.6",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/g/gnupg2/gpgconf_2.4.4-2ubuntu17.6_amd64.deb",
+      "filename": "gpgconf_2.4.4-2ubuntu17.6_amd64.deb",
+      "sha256": "59d35df3b5d7e6dd8235c39c56f8008d1380275765d1a10343e5b9be185e2b7a",
+      "bytes": 103894
+    },
+    {
+      "package": "gnupg",
+      "version": "2.4.4-2ubuntu17.6",
+      "architecture": "all",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/g/gnupg2/gnupg_2.4.4-2ubuntu17.6_all.deb",
+      "filename": "gnupg_2.4.4-2ubuntu17.6_all.deb",
+      "sha256": "d278c81e407d51dae2b7df30adc08ecd6a0acde5884fc5ba2d1ef107f0e8ab0b",
+      "bytes": 358890
+    },
+    {
+      "package": "keyboxd",
+      "version": "2.4.4-2ubuntu17.6",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/g/gnupg2/keyboxd_2.4.4-2ubuntu17.6_amd64.deb",
+      "filename": "keyboxd_2.4.4-2ubuntu17.6_amd64.deb",
+      "sha256": "1bb5f40735b55a17abfb587607816724771fb38fd123b083b7d24bc606c2ecda",
+      "bytes": 78268
+    },
+    {
+      "package": "libp11-kit0",
+      "version": "0.25.3-4ubuntu2.2",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/p/p11-kit/libp11-kit0_0.25.3-4ubuntu2.2_amd64.deb",
+      "filename": "libp11-kit0_0.25.3-4ubuntu2.2_amd64.deb",
+      "sha256": "e7c58aeac19d89f5f1492dfaa52b8623bcd56edc40983f5243ad56d94f477bf2",
+      "bytes": 297270
+    },
+    {
+      "package": "libtasn1-6",
+      "version": "4.19.0-3ubuntu0.24.04.2",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/libt/libtasn1-6/libtasn1-6_4.19.0-3ubuntu0.24.04.2_amd64.deb",
+      "filename": "libtasn1-6_4.19.0-3ubuntu0.24.04.2_amd64.deb",
+      "sha256": "f82c9ad142f952ea523bda5bfca7bb0802af3a50b8c0f0dd9ec18cdfa104bde7",
+      "bytes": 44468
+    },
+    {
+      "package": "libgnutls30t64",
+      "version": "3.8.3-1.1ubuntu3.6",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/g/gnutls28/libgnutls30t64_3.8.3-1.1ubuntu3.6_amd64.deb",
+      "filename": "libgnutls30t64_3.8.3-1.1ubuntu3.6_amd64.deb",
+      "sha256": "b8944756260c5ea6b7fac019745f931f905aa7a4df0763676b1b25c911b692e2",
+      "bytes": 1002902
+    },
+    {
+      "package": "gpgv",
+      "version": "2.4.4-2ubuntu17.6",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/g/gnupg2/gpgv_2.4.4-2ubuntu17.6_amd64.deb",
+      "filename": "gpgv_2.4.4-2ubuntu17.6_amd64.deb",
+      "sha256": "c8810069e98cd343c4c5c64b3ef5a0bb1f526419cff3266cd99ed4c87ad99868",
+      "bytes": 158120
+    },
+    {
+      "package": "openssl",
+      "version": "3.0.13-0ubuntu3.16",
+      "architecture": "amd64",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/openssl_3.0.13-0ubuntu3.16_amd64.deb",
+      "filename": "openssl_3.0.13-0ubuntu3.16_amd64.deb",
+      "sha256": "675b84971ffd4467707008c25ef7520f90ea7c23ef27b7a76b0dccf1d7c4dc3f",
+      "bytes": 1003702
+    },
+    {
+      "package": "gnupg2",
+      "version": "2.4.4-2ubuntu17.6",
+      "architecture": "all",
+      "url": "http://archive.ubuntu.com/ubuntu/pool/universe/g/gnupg2/gnupg2_2.4.4-2ubuntu17.6_all.deb",
+      "filename": "gnupg2_2.4.4-2ubuntu17.6_all.deb",
+      "sha256": "b11dfe8230bc121146f5d917ed38b654291348626174826a93214dd18498e647",
+      "bytes": 4748
+    },
+    {
+      "package": "python3-jwt",
+      "version": "2.7.0-1ubuntu0.4",
+      "architecture": "all",
+      "filename": "python3-jwt_2.7.0-1ubuntu0.4_all.deb",
+      "url": "http://security.ubuntu.com/ubuntu/pool/main/p/pyjwt/python3-jwt_2.7.0-1ubuntu0.4_all.deb",
+      "sha256": "4c5a995c435a69853ab1e93a61ded8ebef63ecf6806e6ad391ab598e8f2b579e",
+      "bytes": 23250
+    }
+  ],
+  "source": "apt update authenticated Ubuntu indexes; exact revision and SHA256 verified",
+  "scope": "Only reviewed32 packages; PyJWT addition separately approved; no other upgrades"
+}

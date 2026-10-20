@@ -1,0 +1,39 @@
+# syntax=docker/dockerfile:1
+# Prepare the private offline context with prepare_build.py before building.
+FROM --platform=linux/arm64 vllm/vllm-openai@sha256:b1bea6490db94268e68577929ae4b800a662b91a3cd4a1fcba81cfb3946ddcff AS corrected-base
+COPY workers/qwen/base-gpu.lock /opt/pulsefeed-base/base-gpu.lock
+# Match PyTorch's NCCL pin; this dense single-GPU worker does not use EP/M2N.
+# Remove only reviewed unused LMCache and Launchpad/apt-source configuration tools.
+RUN --network=none --mount=type=bind,source=workers/qwen/build-inputs/gpu,target=/gpu,readonly \
+    python3 -m pip install --no-index --no-cache-dir --no-deps --require-hashes --force-reinstall --find-links=/gpu -r /opt/pulsefeed-base/base-gpu.lock \
+    && python3 -m pip uninstall -y lmcache \
+    && DEBIAN_FRONTEND=noninteractive apt-get purge -y python3-httplib2 python3-oauthlib python3-launchpadlib python3-lazr.restfulclient python3-software-properties software-properties-common
+COPY workers/qwen/apply_os_updates.py workers/qwen/base-os-artifacts.json /opt/pulsefeed-os-security/
+RUN --network=none --mount=type=bind,source=workers/qwen/build-inputs/os,target=/os-debs,readonly \
+    python3 /opt/pulsefeed-os-security/apply_os_updates.py /opt/pulsefeed-os-security/base-os-artifacts.json /os-debs \
+    && rm -f /var/cache/apt/archives/*.deb
+COPY workers/qwen/base-python-inventory.json workers/qwen/base-os-inventory.tsv workers/qwen/verify_base.py workers/qwen/lock_dependencies.py /opt/pulsefeed-base/
+RUN --network=none python3 /opt/pulsefeed-base/verify_base.py /opt/pulsefeed-base/base-python-inventory.json /opt/pulsefeed-base/base-os-inventory.tsv
+
+FROM corrected-base AS runtime
+WORKDIR /worker
+COPY workers/qwen/requirements-dgx.lock workers/qwen/requirements-dgx.provenance.json workers/qwen/check_dependencies.py workers/qwen/lock_dependencies.py /worker/
+# No resolution or network: every added wheel and the full inherited closure is locked.
+RUN --network=none --mount=type=bind,source=workers/qwen/build-inputs/overlay,target=/overlay,readonly \
+    python3 -m pip install --no-index --no-cache-dir --no-deps --require-hashes --find-links=/overlay -r requirements-dgx.lock \
+    && python3 /worker/check_dependencies.py \
+    && python3 /worker/lock_dependencies.py verify requirements-dgx.provenance.json --lock-file requirements-dgx.lock
+COPY workers/qwen/handler.py workers/qwen/runtime.py workers/qwen/local_factory.py workers/qwen/healthcheck.py workers/qwen/smoke_dgx.py /worker/
+COPY local/worker_gateway.py /gateway/worker_gateway.py
+RUN python3 -c "from runtime import write_dgx_runtime_lock; write_dgx_runtime_lock('/worker/dgx-runtime-lock.json')" \
+    && python3 -m pip freeze > /worker/build-packages.txt
+ENV PYTHONUNBUFFERED=1 PYTHONPATH=/worker QWEN_RUNTIME_PROFILE=dgx-spark \
+    LOCAL_WORKER_FACTORY=local_factory:create_worker LOCAL_WORKER_PORT=8000 \
+    LOCAL_GPU_LOCK=/coordination/gpu.lock \
+    MODEL_REVISION=ccd10a893cbca613259517c3efe08e151ddf2b8e \
+    MODEL_CACHE_SOURCE=volume MODEL_CACHE_OFFLINE=false \
+    MODEL_CACHE_DIR=/model-cache/huggingface INITIALIZATION_TIMEOUT_SECONDS=480 \
+    EXECUTION_TIMEOUT_SECONDS=240 HF_HUB_DISABLE_TELEMETRY=1 \
+    HF_HUB_DOWNLOAD_TIMEOUT=30 HF_HUB_ETAG_TIMEOUT=10 VLLM_WORKER_MULTIPROC_METHOD=spawn
+HEALTHCHECK --interval=15s --timeout=3s --start-period=480s --retries=2 CMD python3 /worker/healthcheck.py
+ENTRYPOINT ["python3", "-u", "/gateway/worker_gateway.py"]

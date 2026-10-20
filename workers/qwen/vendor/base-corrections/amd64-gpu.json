@@ -1,0 +1,18 @@
+[
+  {
+    "name": "nvidia-nccl-cu12",
+    "version": "2.29.7",
+    "url": "https://files.pythonhosted.org/packages/31/1e/9e366f36efc550f07d6737f199e3f6bffafdf28795d007f10a77dd274f5c/nvidia_nccl_cu12-2.29.7-py3-none-manylinux_2_18_x86_64.whl",
+    "filename": "nvidia_nccl_cu12-2.29.7-py3-none-manylinux_2_18_x86_64.whl",
+    "bytes": 293633942,
+    "sha256": "ecd0a012051abc20c1aa87328841efa8cade3ced65803046e38c2f03c0891fea"
+  },
+  {
+    "name": "torchcodec",
+    "version": "0.17.0+cu126",
+    "url": "https://download.pytorch.org/whl/cu126/torchcodec-0.17.0%2Bcu126-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+    "filename": "torchcodec-0.17.0+cu126-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+    "bytes": 9660912,
+    "sha256": "a065d3513aaca4e62c1d3e8419e89ee4dc34b524b1f55ac985e3763178e4be50"
+  }
+]

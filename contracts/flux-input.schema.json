@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:pulsefeed:v1:flux-input",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "type": "integer"
+    },
+    "stage": {
+      "const": "flux"
+    },
+    "run_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "invocation_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "deadline_unix_ms": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "prompt": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "width": {
+      "type": "integer",
+      "enum": [
+        256,
+        512,
+        1024
+      ]
+    },
+    "height": {
+      "type": "integer",
+      "enum": [
+        256,
+        512,
+        1024
+      ]
+    },
+    "num_inference_steps": {
+      "type": "integer",
+      "const": 4
+    },
+    "guidance_scale": {
+      "type": "number",
+      "const": 1
+    },
+    "output_format": {
+      "enum": [
+        "webp",
+        "jpeg"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "stage",
+    "run_id",
+    "invocation_id",
+    "deadline_unix_ms",
+    "prompt",
+    "seed",
+    "width",
+    "height",
+    "num_inference_steps",
+    "guidance_scale",
+    "output_format"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "anyOf": [
+        {
+          "properties": {
+            "width": {
+              "const": 256
+            },
+            "height": {
+              "const": 256
+            }
+          }
+        },
+        {
+          "properties": {
+            "width": {
+              "const": 512
+            },
+            "height": {
+              "const": 512
+            }
+          }
+        },
+        {
+          "properties": {
+            "width": {
+              "const": 1024
+            },
+            "height": {
+              "const": 1024
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

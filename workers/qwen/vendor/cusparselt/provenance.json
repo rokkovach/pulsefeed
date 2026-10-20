@@ -1,0 +1,15 @@
+{
+  "status": "candidate; default Dockerfiles unchanged",
+  "distribution": "nvidia-cusparselt-cu13",
+  "upstream_version": "0.8.1",
+  "source_url": "https://files.pythonhosted.org/packages/46/e1/cdc1797eadf82d3a9a575a19b33fdc871a97edbec42c00b5b5e914f4aff4/nvidia_cusparselt_cu13-0.8.1-py3-none-manylinux2014_aarch64.whl",
+  "source_sha256": "4dca476c50bf4780d46cd0bfbd82e2bc10a08e4fef7950917ce8d7578d22a23f",
+  "source_bytes": 221051344,
+  "local_version": "0.8.1+pulsefeed.arm64tag1",
+  "output_sha256": "56c5a2fc0e888c324b46cd292070b7a0dcb440803cb290e1755eb61632b44b9e",
+  "output_bytes": 221051541,
+  "original_tag": "py3-none-manylinux2014_sbsa",
+  "corrected_tag": "py3-none-manylinux2014_aarch64",
+  "scope": "Packaging metadata only; every native and license payload byte unchanged",
+  "license": "Unchanged NVIDIA license files remain in the upstream/rebuilt wheel"
+}

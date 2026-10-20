@@ -1,0 +1,28 @@
+# Python 3.11 app/test constraints; worker environments are locked separately.
+# Generated with uv pip compile app/pyproject.toml --extra test --python-version 3.11.
+annotated-doc==0.0.5
+annotated-types==0.8.0
+anyio==4.15.1
+certifi==2026.10.19
+click==8.5.0
+defusedxml==0.7.1
+fastapi==0.135.4
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
+idna==3.20
+iniconfig==2.3.1
+jinja2==3.1.6
+markupsafe==3.0.4
+packaging==26.3
+pillow==13.0.0
+pluggy==1.6.0
+pydantic==2.14.1
+pydantic-core==2.50.1
+pygments==2.21.0
+pytest==9.0.3
+pytest-asyncio==1.3.0
+starlette==1.3.1
+typing-extensions==4.16.0
+typing-inspection==0.4.4
+uvicorn==0.37.0

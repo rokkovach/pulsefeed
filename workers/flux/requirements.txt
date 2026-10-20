@@ -1,0 +1,4 @@
+# Resolve against the exact official AMD64 CUDA wheel; production installs the full hash lock.
+torch @ https://download-r2.pytorch.org/whl/cu129/torch-2.13.0%2Bcu129-cp312-cp312-manylinux_2_28_x86_64.whl#sha256=df28741fcd89e3da7cce2d48cbe5299d6732d510ac20f5d422d0b85edf18c327
+-r requirements-inference.txt
+runpod==1.12.0

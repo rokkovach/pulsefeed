@@ -1,0 +1,31 @@
+{
+  "base_wheel": "setuptools-80.10.2-py3-none-any.whl",
+  "base_wheel_sha256": "95b30ddfb717250edb492926c92b5221f7ef3fbcc2b07579bcd4a27da21d0173",
+  "local_version": "80.10.2+pulsefeed.ghsah35f.3",
+  "upstream_security_commit": "dd9f436a36486b4cb8a4c70a2321548b0be09b8f",
+  "patch_sha256": "c1acc2b574ba4e6b685647ea09665a5edbb5d5ddcfa0789b1c2d0cd35d502c8c",
+  "local_patch_sha256": "5c394da5ed494a0757c9a9bb56edc0c075ec14f87b2e4e7490801d22502ecaa2",
+  "scope": "Official egg_info/unicode_utils backport plus explicit local vendored-distutils normalization; scanner version ranges may still match; no exception claim",
+  "candidate_wheel_sha256": "33d0092bf9a861c276e55bce8e4c96fc72b2fe2a6b2617de588380680e934d5c",
+  "candidate_wheel": "setuptools-80.10.2+pulsefeed.ghsah35f.3-py3-none-any.whl",
+  "base_wheel_url": "https://files.pythonhosted.org/packages/94/b8/f1f62a5e3c0ad2ff1d189590bfa4c46b4f3b6e49cef6f26c6ee4e575394d/setuptools-80.10.2-py3-none-any.whl",
+  "license": "MIT",
+  "patches": [
+    {
+      "file": "upstream-normalization.patch",
+      "sha256": "c1acc2b574ba4e6b685647ea09665a5edbb5d5ddcfa0789b1c2d0cd35d502c8c",
+      "origin": "https://github.com/pypa/setuptools/commit/dd9f436a36486b4cb8a4c70a2321548b0be09b8f"
+    },
+    {
+      "file": "local-distutils-normalization.patch",
+      "sha256": "5c394da5ed494a0757c9a9bb56edc0c075ec14f87b2e4e7490801d22502ecaa2",
+      "origin": "PulseFeed local extension; normalize FileList glob comparisons while preserving stored names and explicit regex semantics"
+    }
+  ],
+  "promotion_status": "candidate; default production dependencies unchanged",
+  "vendored_security_base": {
+    "jaraco.context": "6.1.0",
+    "wheel": "0.46.3",
+    "source": "unmodified official setuptools80.10.2 vendored payload"
+  }
+}

@@ -1,0 +1,4 @@
+Pillow==13.0.0
+pytest==8.4.2
+jsonschema==4.25.1
+# Installed without dependencies for isolated SDK run_job tests; transports are mocked.

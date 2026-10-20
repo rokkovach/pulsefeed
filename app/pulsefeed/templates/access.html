@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Access · PulseFeed{% endblock %}
+{% block content %}
+<main class="access-page">
+  <header class="access-header"><a class="brand" href="/" aria-label="PulseFeed home"><span class="brand-mark">P<span>●</span></span>PulseFeed</a>{% include "theme_toggle.html" %}</header>
+  <section class="access-card">
+    <div class="pixel-scene access-scene" aria-hidden="true"></div>
+    <p class="eyebrow">A fresh perspective</p>
+    <h1>Your reading.<br>A little more visual.</h1>
+    <p class="muted">{% if message %}{{ message }}{% elif public_access|default(false) %}Head home to open an RSS feed. No access link is needed to read.{% else %}Open your issued access link to enter the illustration studio.{% endif %}</p>
+    <div class="notice">{% if public_access|default(false) %}Reading is open to everyone. Administrators can <a href="/admin">sign in to the admin dashboard</a>.{% else %}Access links are single-use and expire after 30 minutes by default. Ask the person who shared this demo for a fresh link if yours has expired.{% endif %}</div>
+    <a href="/" class="button button-dark">Back to home ↗</a>
+    <p class="small muted">Feed pages and browser copies last one hour. Cleanup runs at expiry or on your next visit. Original articles always belong to their sources.</p>
+  </section>
+  <p class="access-footer">RSS, with a new point of view.</p>
+</main>
+{% endblock %}

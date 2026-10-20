@@ -1,0 +1,4 @@
+# Install the local Runpod security backport explicitly alongside this file.
+jsonschema==4.26.0
+# Match the vLLM0.32 runtime family while exercising the SDK queue wrapper.
+fastapi[all]==0.136.3

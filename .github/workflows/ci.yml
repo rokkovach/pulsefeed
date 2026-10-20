@@ -1,0 +1,123 @@
+name: CPU checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# These jobs have no deployment credentials and cannot publish images or deploy.
+permissions:
+  contents: read
+
+concurrency:
+  group: cpu-checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+      - name: Check the committed tree and nested handoff archives
+        run: python scripts/check-release.py --ref HEAD
+
+  app-advisories:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+      - name: Check the exact app lock against current advisories
+        run: |
+          python -m pip install pip-audit==2.10.1
+          # Query public package/version metadata only; never auto-fix GPU stacks.
+          pip-audit --strict --disable-pip --no-deps --progress-spinner off -r app/requirements.lock
+
+  app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+      - name: Install app and CPU test dependencies
+        run: |
+          python -m venv app/.venv
+          app/.venv/bin/python -m pip install -c app/requirements.lock -r requirements-dev.txt './app[test]'
+      - name: App, contracts, local gateway and browser behavior
+        env:
+          PULSEFEED_PYTHON: app/.venv/bin/python
+        run: |
+          bash scripts/check.sh app
+          bash scripts/check.sh integration
+          bash scripts/check.sh ui
+
+  workers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        worker: [qwen, flux]
+        python: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install isolated worker test dependencies
+        env:
+          WORKER: ${{ matrix.worker }}
+        run: |
+          if [ "$WORKER" = qwen ]; then
+            # vLLM's FastAPI ceiling excludes the latest upstream SDK. Test the
+            # same reviewed security backport shipped in the Qwen image.
+            python -m pip install -r workers/qwen/requirements-test.txt \
+              "$GITHUB_WORKSPACE/workers/qwen/vendor/runpod/runpod-1.10.0+pulsefeed.security.1-py3-none-any.whl"
+          else
+            python -m pip install -r workers/flux/requirements-test.txt
+            # FLUX exercises pinned SDK modules with mocked transports; avoid its
+            # unrelated web/cloud dependencies and never load operator credentials.
+            python -m pip install --no-deps runpod==1.12.0
+          fi
+      - name: Worker CPU and SDK contract checks
+        env:
+          WORKER: ${{ matrix.worker }}
+        run: bash scripts/check.sh "$WORKER"
+      - name: Verify Qwen's reproducible security backports
+        if: matrix.worker == 'qwen'
+        run: |
+          # These are reference archives only. The verifier authenticates their
+          # exact hashes before comparing patched code and rebuilding the wheel.
+          references="$(mktemp -d)"
+          python -m pip download --no-deps --only-binary=:all: \
+            --dest "$references" runpod==1.10.0
+          python -m pip download --no-deps --only-binary=:all: \
+            --dest "$references" runpod==1.12.0
+          python workers/qwen/vendor/runpod/verify_backport.py \
+            --base-wheel "$references/runpod-1.10.0-py3-none-any.whl" \
+            --reference-wheel "$references/runpod-1.12.0-py3-none-any.whl"
+          # Isolate setuptools from the test runner's packaging dependencies.
+          python -m venv "$references/setuptools-test"
+          "$references/setuptools-test/bin/python" -m pip install --no-index --no-deps \
+            workers/qwen/vendor/setuptools/setuptools-80.10.2+pulsefeed.ghsah35f.3-py3-none-any.whl
+          "$references/setuptools-test/bin/python" workers/qwen/vendor/setuptools/verify_backport.py
+          python workers/qwen/vendor/os-security/test_apply_updates.py

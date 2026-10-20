@@ -1,0 +1,36 @@
+%% Editable semantic companion to architecture.svg. Status: 2026-10-20.
+%% Runpod verified from local app; latest connected Railway generation release pending.
+%%{init: {'theme':'base','themeVariables':{'background':'#FAF9F6','primaryColor':'#DED8F8','primaryTextColor':'#25283D','primaryBorderColor':'#25283D','lineColor':'#25283D','secondaryColor':'#CEF0DE','tertiaryColor':'#FFDCC7','fontFamily':'Inter, Arial, sans-serif','fontSize':'18px'}}}%%
+flowchart LR
+  subgraph Browser[Visitor browser]
+    UI[Reader UI · HTML + JavaScript]
+    SS[sessionStorage · key + recovery · 10 min]
+    IDB[IndexedDB image Blobs<br/>Purge at original one-hour view expiry]
+    UI <--> SS
+    UI <--> IDB
+  end
+  subgraph Railway[Railway · one replica / one ASGI process]
+    API[Routes + authorization<br/>Cookie, CSRF, owner / expiry checks<br/>Validated image responses]
+    Policy[Admission + prompt policy<br/>Atomic limits + reservations]
+    C[One coordinator<br/>Persist intent before submission<br/>Save job IDs; poll existing jobs<br/>Compose + filter final prompt]
+    DB[(Persistent SQLite<br/>Sessions, policy, snapshots<br/>Runs, invocations, usage<br/>Reservations + audit<br/>Output metadata only)]
+    API --> Policy
+    API <--> DB
+    Policy --> C
+    Policy <--> DB
+    C <--> DB
+  end
+  subgraph Runpod[Runpod · independent queue endpoints]
+    Q[Qwen3-8B · NVFP4<br/>Prompt + measured tokens<br/>App slots 1–3 · one GPU per worker]
+    F[FLUX.2-klein-4B · BF16<br/>512 × 512 image + usage<br/>App slots 1–3 · one GPU per worker]
+    Temp[Temporary output · 30 min after completion<br/>Weight cache holds models only<br/>No permanent image archive]
+  end
+  UI <-->|HTTPS| API
+  API <-->|Public DNS pinned; redirects revalidated<br/>Safe XML; 2 MiB; 10-second bounded fetch| RSS[Untrusted public RSS / Atom]
+  C <-->|Fixed jobs · server credentials<br/>/run → save ID → /status/id| Q
+  C <-->|Fixed jobs · server credentials<br/>/run → save ID → /status/id| F
+  Admin[Protected admin<br/>Aggregate usage + policy<br/>Visitor feeds stay owner-scoped] -.-> API
+  classDef mint fill:#CEF0DE,stroke:#25283D,color:#25283D;
+  classDef peach fill:#FFDCC7,stroke:#25283D,color:#25283D;
+  class IDB,Policy,DB mint;
+  class F,RSS,Temp peach;

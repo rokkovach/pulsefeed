@@ -1,0 +1,7 @@
+diffusers==0.41.0
+transformers==5.20.2
+accelerate==1.15.0
+huggingface-hub==1.33.0
+safetensors==0.8.0
+sentencepiece==0.2.1
+Pillow==13.0.0

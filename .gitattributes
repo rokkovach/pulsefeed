@@ -1,0 +1,3 @@
+# Preserve exact upstream patch and font-license bytes.
+*.patch -whitespace
+app/pulsefeed/static/Silkscreen.OFL.txt -whitespace

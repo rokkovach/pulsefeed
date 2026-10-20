@@ -1,0 +1,22 @@
+# Allow only build inputs and runtime assets. New env files, backups, databases,
+# test artifacts and virtual environments stay outside remote build contexts.
+**
+!.dockerignore
+!Dockerfile
+!pyproject.toml
+!requirements.lock
+!pulsefeed/
+# Re-exclude descendants after opening each directory: Docker's parent match
+# otherwise re-includes everything beneath it, including hidden private files.
+pulsefeed/**
+!pulsefeed/*.py
+!pulsefeed/templates/
+pulsefeed/templates/**
+!pulsefeed/templates/*.html
+!pulsefeed/static/
+pulsefeed/static/**
+!pulsefeed/static/*.js
+!pulsefeed/static/*.css
+!pulsefeed/static/*.svg
+!pulsefeed/static/*.ttf
+!pulsefeed/static/*.txt

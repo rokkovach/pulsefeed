@@ -1,0 +1,50 @@
+%% Editable semantic companion to request-lifecycle.svg. Status: 2026-10-20.
+%%{init: {'theme':'base','themeVariables':{'background':'#FAF9F6','primaryColor':'#DED8F8','primaryTextColor':'#25283D','primaryBorderColor':'#25283D','lineColor':'#25283D','actorBkg':'#DED8F8','actorBorder':'#25283D','actorTextColor':'#25283D','noteBkgColor':'#CEF0DE','noteTextColor':'#25283D','fontFamily':'Inter, Arial, sans-serif','fontSize':'18px'}}}%%
+sequenceDiagram
+  participant B as Browser
+  participant A as App / coordinator
+  participant D as SQLite
+  participant Q as Qwen worker
+  participant F as FLUX worker
+  B->>B: Persist request key in sessionStorage
+  B->>A: POST URL + key; cookie + CSRF
+  A->>D: Check owner + exact-key replay
+  alt Exact replay
+    D-->>A: Original selection + immutable expiry
+    A-->>B: Existing view; no new admission / generation
+  else Fresh key
+    A->>A: Validate destination + bounded RSS / Atom fetch
+    Note over B,A: RSS rejection stays on form; no inference
+    A->>D: Atomically save snapshot + reserve quotas + admit
+    A-->>B: Validated view; original one-hour expiry
+    B->>B: Save validated response, then navigate
+    Note over A,F: For each admitted story; app orchestrates both stages
+    A->>D: Persist Qwen invocation + submitting state
+    A->>Q: Submit fixed /run job
+    Q-->>A: Provider job ID
+    A->>D: Persist provider job ID
+    loop Existing job
+      A->>Q: Poll /status/id
+    end
+    Q-->>A: Prompt + measured usage
+    A->>A: Verify output; compose + filter final prompt
+    A->>D: Save final prompt; persist FLUX intent + submitting state
+    A->>F: Submit fixed /run job
+    F-->>A: Provider job ID
+    A->>D: Persist provider job ID
+    loop Existing job
+      A->>F: Poll /status/id
+    end
+    F-->>A: Image + measured usage
+    A->>D: Verify image; settle attempts; save metadata only
+  end
+  B->>A: Read-only owned batch / existing image request
+  opt Existing result retrieval required
+    A->>F: Retrieve existing job result; never regenerate
+    F-->>A: Temporary retained output, if available
+  end
+  A-->>B: Validated image bytes, if available
+  B->>B: Decode; commit IndexedDB Blob until original view expiry
+  Note over B,A: Reload never automatically retries uncertain POST; explicit retry uses same key
+  Note over A,F: Unknown provider acceptance / execution: hold reservations; freeze new dispatch<br/>Poll known IDs when possible; operator reconciliation; no automatic replay
+  Note over B,F: Provider output is temporary. SQLite stores metadata; no permanent image archive.

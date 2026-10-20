@@ -1,0 +1,40 @@
+.DS_Store
+.venv/
+.venv-local/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+node_modules/
+integration/artifacts/
+# Local service logs and process IDs are operator state, not release inputs.
+local/data/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Generated QA, credentials, model artifacts and superseded handouts stay local.
+*.log
+*.key
+*.pem
+*.safetensors
+*.ckpt
+output/archive/
+output/qa/
+
+# Historical slide builders can be run locally without publishing old evidence.
+output/presentation/
+output/pdf/pulsefeed-case-study.pdf

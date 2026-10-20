@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Admin sign in · PulseFeed{% endblock %}
+{% block referrer_policy %}same-origin{% endblock %}
+{% block content %}
+<main class="access-page"><header class="access-header"><a class="brand" href="/" aria-label="PulseFeed home"><span class="brand-mark">P<span>●</span></span>PulseFeed</a>{% include "theme_toggle.html" %}</header>
+<section class="access-card admin-login-card"><div class="pixel-scene access-scene" aria-hidden="true"></div><p class="eyebrow">Administrator access</p><h1>Welcome back.</h1><p class="muted">Sign in to manage prompts, usage and limits.</p>
+<form action="/admin/login" method="post" class="admin-login-form"><input type="hidden" name="login_csrf" value="{{ login_csrf }}"><label for="admin-password">Admin password</label><input id="admin-password" name="password" type="password" autocomplete="current-password" required maxlength="256"{% if not login_enabled %} disabled{% endif %} aria-describedby="admin-login-status"><p id="admin-login-status" class="reader-status small{% if message %} error{% else %} muted{% endif %}" role="status" aria-live="polite">{{ message or ('Admin sign-in is not configured.' if not login_enabled else '') }}</p><button class="button button-dark" type="submit"{% if not login_enabled %} disabled{% endif %}>Sign in</button></form>
+<a href="/" class="source-link">Back to home ↗</a></section></main>
+{% endblock %}

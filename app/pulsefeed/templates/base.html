@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="{% block referrer_policy %}no-referrer{% endblock %}">
+  <meta name="color-scheme" content="light dark">
+  <title>{% block title %}PulseFeed · Illustration studio{% endblock %}</title>
+  <link rel="preload" href="{{ asset_url('Silkscreen-Regular.ttf') }}" as="font" type="font/ttf" crossorigin>
+  <script src="{{ asset_url('theme.js') }}"></script>
+  <link rel="stylesheet" href="{{ asset_url('app.css') }}">
+  <script id="storage-bootstrap" type="application/json">{{ {'server_now': server_now|default(none)}|tojson }}</script>
+  <script src="{{ asset_url('image-store.js') }}" defer></script>
+</head>
+<body>{% block content %}{% endblock %}{% block scripts %}{% endblock %}</body>
+</html>

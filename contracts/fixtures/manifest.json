@@ -1,0 +1,76 @@
+{
+  "synthetic": true,
+  "description": "Compatibility examples only; no measured inference or generated model imagery.",
+  "fixtures": [
+    {
+      "file": "qwen-input.json",
+      "stage": "qwen",
+      "kind": "input",
+      "valid": true,
+      "request": null
+    },
+    {
+      "file": "qwen-success.json",
+      "stage": "qwen",
+      "kind": "output",
+      "valid": true,
+      "request": "qwen-input.json"
+    },
+    {
+      "file": "qwen-validation-failure.json",
+      "stage": "qwen",
+      "kind": "output",
+      "valid": true,
+      "request": "qwen-input.json"
+    },
+    {
+      "file": "qwen-worker-failure.json",
+      "stage": "qwen",
+      "kind": "output",
+      "valid": true,
+      "request": "qwen-input.json"
+    },
+    {
+      "file": "qwen-malformed-output.json",
+      "stage": "qwen",
+      "kind": "output",
+      "valid": false,
+      "request": null
+    },
+    {
+      "file": "flux-input.json",
+      "stage": "flux",
+      "kind": "input",
+      "valid": true,
+      "request": null
+    },
+    {
+      "file": "flux-success.json",
+      "stage": "flux",
+      "kind": "output",
+      "valid": true,
+      "request": "flux-input.json"
+    },
+    {
+      "file": "flux-validation-failure.json",
+      "stage": "flux",
+      "kind": "output",
+      "valid": true,
+      "request": "flux-input.json"
+    },
+    {
+      "file": "flux-worker-failure.json",
+      "stage": "flux",
+      "kind": "output",
+      "valid": true,
+      "request": "flux-input.json"
+    },
+    {
+      "file": "flux-malformed-output.json",
+      "stage": "flux",
+      "kind": "output",
+      "valid": false,
+      "request": null
+    }
+  ]
+}

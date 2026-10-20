@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}PulseFeed · {{ initial_feed.feed.title if initial_feed else 'Your RSS, illustrated' }}{% endblock %}
+{% block content %}
+{% set admission_messages = {
+  "FEED_DAILY_LIMIT": [
+    "This page used the previous feed allowance",
+    "This page was opened under the previous feed allowance. Load a new feed to use the current limits."
+  ],
+  "GLOBAL_DAILY_LIMIT": [
+    "Daily illustration allowance reached",
+    "There was not enough shared daily image allowance left to start this page when it opened. The allowance resets at 00:00 UTC. Try loading a feed after the reset."
+  ],
+  "GLOBAL_HOURLY_LIMIT": [
+    "Hourly generation allowance reached",
+    "The shared hourly generation allowance could not fit this page when it opened. Capacity returns as earlier starts leave the rolling one-hour window. Try loading a feed later."
+  ],
+  "BUSY": [
+    "Another request was still finishing",
+    "Another illustration request was still finishing when this page opened. Try loading a feed again in a moment."
+  ],
+  "OTHER": [
+    "Illustrations could not start",
+    "Illustrations could not start for this page. Try loading a feed again later."
+  ]
+} %}
+{% set reveal_feed = view and initial_feed and initial_feed.runs and initial_feed.get('generation', {}).get('status') != 'blocked' and not initial_feed.runs|selectattr('state', 'in', ['failed', 'submission_unknown'])|list %}
+<div id="studio" class="reader-shell"><main class="reader-main">
+<header class="reader-topbar">
+  <a class="brand" href="/{% if admin_mode %}?admin{% endif %}" aria-label="PulseFeed home"><span class="brand-mark">P<span>●</span></span>PulseFeed</a>
+  <div class="reader-tools">
+    <div class="reader-view-tools">{% if view %}<a class="button button-quiet reader-new-feed" href="/{% if admin_mode %}?admin{% endif %}">Load a new feed</a>{% endif %}{% include "theme_toggle.html" %}</div>
+    {% if account.role == 'admin' %}<div class="reader-admin-tools"><a class="reader-settings-button" href="/admin">Admin dashboard</a><form action="/logout" method="post"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="reader-settings-button" type="submit">Sign out</button></form></div>{% endif %}
+  </div>
+</header>
+{% if pending_feed|default(false) %}
+<section class="reader-feed reader-pending" aria-labelledby="pending-feed-title"><div class="reader-feed-heading reader-feed-header-card"><div><h1 id="pending-feed-title">Opening your feed</h1><p id="pending-feed-source" class="small muted">Your RSS feed</p><p class="reader-feed-created small muted">Creating your reading page…</p><p class="reader-feed-details small muted">Fetching stories and preparing your illustrated reading page.</p></div><p id="pending-status" class="small muted" role="status" aria-live="polite">Fetching stories…</p></div><div class="reader-canvas">{% include "fun_loader.html" %}<div class="reader-pending-grid reader-articles" data-reveal="holding" aria-hidden="true">{% for slot in range(3) %}<article class="reader-card reader-skeleton"><div class="image-area"></div><div class="card-body"><span class="skeleton-line skeleton-line-short"></span><span class="skeleton-line"></span><span class="skeleton-line"></span></div></article>{% endfor %}</div><div class="card-actions"><button id="pending-retry" class="button button-dark" type="button" data-mutation hidden>Retry opening feed</button><a id="pending-home" class="button button-quiet" href="/{% if admin_mode %}?admin{% endif %}">Load a new feed</a></div></div></section>
+{% elif not view %}
+<section class="reader-hero" aria-labelledby="reader-title"><div class="pixel-scene reader-scene" aria-hidden="true"></div><h1 id="reader-title">RSS, <em>reimagined.</em></h1><label class="reader-form-label" for="feed-url">Open an RSS feed</label><form id="feed-form" class="feed-form reader-feed-form"><input id="feed-url" disabled data-initializing aria-label="Open an RSS feed — RSS feed URL" aria-describedby="reader-status" type="text" inputmode="url" autocomplete="url" placeholder="Enter an RSS feed URL{% if fake_mode %} or try demo{% endif %}" required maxlength="2048"><button id="view-feed" disabled data-initializing type="submit" class="button button-dark" data-mutation>View RSS ↗</button></form><p id="reader-status" class="reader-status small muted" role="status" aria-live="polite">{% if not inference_enabled %}Image generation is paused while the model endpoints are being connected. Please check back soon.{% endif %}</p></section>
+{% else %}
+<section id="feed-content" class="reader-feed" aria-labelledby="current-feed-title">
+<div class="reader-feed-heading reader-feed-header-card"><div><h1 id="current-feed-title">{{ initial_feed.feed.title or 'Your feed' }}</h1>{% if source_origin(initial_feed.feed.url) %}<a id="feed-source" class="small muted" href="{{ initial_feed.feed.url }}" target="_blank" rel="noopener noreferrer">{{ initial_feed.feed.url }}</a>{% else %}<p id="feed-source" class="small muted">{{ initial_feed.feed.url }}</p>{% endif %}<p class="reader-feed-created small muted">Created <time>{{ reader_created(view.created_at) }}</time></p>{% if initial_feed.feed.get('description') %}<p class="reader-feed-description small">{{ initial_feed.feed.description }}</p>{% endif %}<p class="reader-feed-details small muted">{{ initial_feed['items']|length }} feed items · {{ initial_feed.runs|length }} selected illustration{{ '' if initial_feed.runs|length == 1 else 's' }}. Page and browser copies expire after one hour; cleanup runs here or on your next visit.</p></div><p id="batch-progress" class="small muted" role="status" aria-live="polite">{% if initial_feed.active_batch_id %}Illustrations are on their way.{% endif %}</p></div>
+{% set admission = initial_feed.get('generation', {}) %}{% set admission_error = admission.get('error') or {} %}{% set admission_copy = admission_messages.get(admission_error.get('code'), admission_messages['OTHER']) %}
+<aside id="generation-notice" class="notice view-generation-notice" role="note"{% if admission.get('status') != 'blocked' %} hidden{% endif %}><strong id="generation-notice-title">{{ admission_copy[0] if admission.get('status') == 'blocked' else '' }}</strong><p id="generation-notice-message">{{ admission_copy[1] if admission.get('status') == 'blocked' else '' }}</p><a class="source-link" href="/{% if admin_mode %}?admin{% endif %}">Load a new feed ↗</a></aside>
+<div class="reader-canvas">{% include "fun_loader.html" %}<div id="item-list" class="reader-articles"{% if reveal_feed %} data-reveal="holding"{% endif %}>{% include "reader_cards.html" %}</div></div>
+</section>
+{% endif %}
+{% if fake_mode %}<div class="demo-notice"><strong>Local demo</strong> Illustrations are synthetic examples, not live model results.{% if not view %} Enter “demo” to explore.{% endif %}</div>{% endif %}
+{% if view %}<div id="feedback" role="status" aria-live="polite"></div>{% endif %}
+<footer class="page-footer reader-footer"><span>PulseFeed · Your RSS, illustrated.{% if not view and not pending_feed|default(false) %} <a class="admin-footer-link" href="/admin">Admin</a>{% endif %}</span><span>Original stories belong to their sources. Illustrations are AI-generated.</span></footer>
+</main></div>
+<div id="view-expired" hidden>{% include "expired_content.html" %}</div>
+<main id="session-expired" class="access-page" hidden><header class="access-header"><a class="brand" href="/" aria-label="PulseFeed home"><span class="brand-mark">P<span>●</span></span>PulseFeed</a>{% include "theme_toggle.html" %}</header><section class="access-card"><p class="eyebrow">Session ended</p><h1>{% if public_access|default(false) %}Ready for another read?{% else %}Time for a fresh link.{% endif %}</h1><p class="muted">{% if admin_mode and public_access|default(false) %}Your admin session has ended. Sign in to the admin dashboard again, or head home to read feeds.{% elif public_access|default(false) %}Your session has ended. Head home to start reading again.{% else %}Your session has ended. Ask the person who shared this demo for a new access link.{% endif %} Feed pages and their browser copies still expire one hour after creation.</p><div class="access-actions">{% if admin_mode %}<a href="/admin" class="button button-dark">Sign in to admin</a>{% endif %}<a href="/" class="button {% if admin_mode %}button-quiet{% else %}button-dark{% endif %}">Back to home ↗</a></div></section></main>
+<script id="bootstrap" type="application/json">{{ {'account': account, 'csrf': csrf, 'fake_mode': fake_mode, 'inference_enabled': inference_enabled, 'admin_mode': admin_mode, 'pending_feed': pending_feed|default(false), 'view': view, 'server_now': server_now, 'initial_feed': initial_feed}|tojson }}</script>
+{% endblock %}
+{% block scripts %}<script src="{{ asset_url('app.js') }}" defer></script>{% endblock %}

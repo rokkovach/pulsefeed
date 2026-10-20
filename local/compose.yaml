@@ -1,0 +1,82 @@
+name: pulsefeed-spark
+services:
+  qwen:
+    build:
+      # control.sh build supplies a private, allowlisted context containing the
+      # authenticated offline dependency archives. Runtime startup needs no context.
+      context: ${QWEN_BUILD_CONTEXT:-..}
+      dockerfile: workers/qwen/Dockerfile.dgx-spark
+    platform: linux/arm64
+    ports:
+      - "127.0.0.1:8181:8000"
+    gpus: all
+    shm_size: 4gb
+    init: true
+    stop_grace_period: 30s
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      LOCAL_WORKER_TOKEN: ${LOCAL_WORKER_TOKEN:?Run local/control.sh init-env first}
+      LOCAL_RESULT_CAPACITY: ${LOCAL_RESULT_CAPACITY:-128}
+      HF_TOKEN: ${HF_TOKEN:-}
+      LOCAL_WORKER_FACTORY: local_factory:create_worker
+      PYTHONPATH: /worker
+      LOCAL_GPU_LOCK: /coordination/gpu.lock
+      MODEL_CACHE_DIR: /runpod-volume/huggingface
+      MODEL_CACHE_SOURCE: volume
+      MODEL_CACHE_OFFLINE: ${QWEN_CACHE_OFFLINE:-false}
+    volumes:
+      - ${QWEN_CACHE_PATH:-qwen-cache}:/runpod-volume/huggingface
+      - coordination:/coordination
+    healthcheck:
+      test: [CMD, python3, -c, "import os,urllib.request; urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:8000/health',headers={'Authorization':'Bearer '+os.environ['LOCAL_WORKER_TOKEN']}),timeout=3).close()"]
+      interval: 15s
+      timeout: 5s
+      start_period: 20m
+      retries: 3
+  flux:
+    depends_on:
+      qwen:
+        condition: service_healthy
+    build:
+      context: ..
+      dockerfile: workers/flux/Dockerfile.dgx-spark
+    platform: linux/arm64
+    ports:
+      - "127.0.0.1:8182:8000"
+    gpus: all
+    shm_size: 4gb
+    init: true
+    stop_grace_period: 30s
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      LOCAL_WORKER_TOKEN: ${LOCAL_WORKER_TOKEN:?Run local/control.sh init-env first}
+      LOCAL_RESULT_CAPACITY: ${LOCAL_RESULT_CAPACITY:-128}
+      HF_TOKEN: ${HF_TOKEN:-}
+      LOCAL_WORKER_FACTORY: local_factory:create_worker
+      PYTHONPATH: /worker
+      LOCAL_GPU_LOCK: /coordination/gpu.lock
+      HF_HOME: /runpod-volume/huggingface
+      HF_HUB_CACHE: /runpod-volume/huggingface/hub
+      MODEL_CACHE_SOURCE: volume
+      MODEL_CACHE_OFFLINE: ${FLUX_CACHE_OFFLINE:-false}
+    volumes:
+      - ${FLUX_CACHE_PATH:-flux-cache}:/runpod-volume/huggingface
+      - coordination:/coordination
+    healthcheck:
+      test: [CMD, python3, -c, "import os,urllib.request; urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:8000/health',headers={'Authorization':'Bearer '+os.environ['LOCAL_WORKER_TOKEN']}),timeout=3).close()"]
+      interval: 15s
+      timeout: 5s
+      start_period: 20m
+      retries: 3
+volumes:
+  qwen-cache:
+  flux-cache:
+  coordination:

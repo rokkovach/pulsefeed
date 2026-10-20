@@ -1,0 +1,23 @@
+{
+  "result": "pass",
+  "source_sha256": "5c72f727722f74762380e5f8755557c788b26d8fdcc49df1641c1b08e16d256c",
+  "output_sha256": "85a1d82bc5f9aeef8f02de7ee67eb50994a26525b5b2e34a34425549f0df2cdf",
+  "changed_files": [
+    "nvidia_cusparselt_cu12-0.8.1.dist-info/METADATA",
+    "nvidia_cusparselt_cu12-0.8.1.dist-info/WHEEL",
+    "nvidia_cusparselt_cu12-0.8.1.dist-info/RECORD"
+  ],
+  "payload_hashes": {
+    "nvidia/cusparselt/LICENSE.txt": "e8d158885a681b95ec7a6fc06dd8d4a52989f374cb1380c8a4c8fb27fd3d5d5e",
+    "nvidia/cusparselt/include/cusparseLt.h": "0df84b580688771d78be62bceebc408867a161c641fe0bca8a5075ba043b63b3",
+    "nvidia/cusparselt/lib/libcusparseLt.so.0": "f9ad7d5a04c5b481280cdd8f703d55bc3daad8da12857cdc4273a17a169f8b3e",
+    "nvidia_cusparselt_cu12-0.8.1.dist-info/top_level.txt": "a1f202f9d6cad2cdb68cde79b207d5a5b847593eb765d24b59e49be8aff5f812"
+  },
+  "recipe_sha256": "a84c8d625dca8284ec69daddf2f8a908a4cb62ee83a35eee31f72921d9f8640a",
+  "independent_actual_rebuild_reproduced": true,
+  "limits": "CPU packaging validation only; no CUDA initialization or runtime compatibility claim",
+  "source_url": "https://files.pythonhosted.org/packages/fd/f8/a809966c96e824b92df09ee3b7032442f5e975d873d7dadfef818d527f48/nvidia_cusparselt_cu12-0.8.1-py3-none-manylinux2014_aarch64.whl",
+  "upstream_version": "0.8.1",
+  "local_version": "0.8.1+pulsefeed.arm64tag1",
+  "purpose": "Correct malformed ARM64 WHEEL tag with unchanged CUDA payload; not a CUDA or advisory fix."
+}

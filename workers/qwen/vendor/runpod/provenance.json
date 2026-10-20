@@ -1,0 +1,109 @@
+{
+  "local_version": "1.10.0+pulsefeed.security.1",
+  "base_wheel": {
+    "filename": "runpod-1.10.0-py3-none-any.whl",
+    "url": "https://files.pythonhosted.org/packages/4d/28/82f4819ad25972d658c2b76ffa0b3add6f46e52a02de9dbeeccfae33e4f4/runpod-1.10.0-py3-none-any.whl",
+    "sha256": "d4a48a38b4dce0c3f44959dccf3a58b8bd5a1cc60bd2f82e2b85211c78f97718",
+    "metadata_url": "https://pypi.org/pypi/runpod/1.10.0/json"
+  },
+  "reference_wheel": {
+    "filename": "runpod-1.12.0-py3-none-any.whl",
+    "url": "https://files.pythonhosted.org/packages/2e/7c/a935647b746743c639b5755c27201d7c55f1434d19e0bec190fcb31a6300/runpod-1.12.0-py3-none-any.whl",
+    "sha256": "2c52d5ad4268879bd4d8288f84a9861488abc756ffc5195d95f1cffe4c4f3454",
+    "metadata_url": "https://pypi.org/pypi/runpod/1.12.0/json"
+  },
+  "patches": [
+    {
+      "file": "upstream-job-state.patch",
+      "sha256": "2f6716be6b7ab0ef424fe669556819cd05734f636f6cc9d3cb06b147fcfc58f2",
+      "official_commits": [
+        {
+          "commit": "6c2cd64bb8efa2dd1c5294946ab809ba1d25f29b",
+          "url": "https://github.com/runpod/runpod-python/commit/6c2cd64bb8efa2dd1c5294946ab809ba1d25f29b"
+        }
+      ],
+      "files": [
+        {
+          "path": "runpod/serverless/modules/worker_state.py",
+          "before_sha256": "8f281f6ac813e4e9a34c05f9b01f015cb7e136a055b38d0930aa5860042e020c",
+          "after_sha256": "7b6da9f219d4368f30a8199e11038e106565ee16dc62027f21c6afd3b7ff7eda"
+        },
+        {
+          "path": "runpod/serverless/modules/rp_ping.py",
+          "before_sha256": "3d61b6aa625c98392b9694451994b90ce51f63bd1377eb452de271b3982f01c8",
+          "after_sha256": "6db09105cd27cfa7cce83ed938f79a96540be0d7decc90f30ddbfe5f8effe8f8"
+        },
+        {
+          "path": "runpod/serverless/worker.py",
+          "before_sha256": "3e463544d516ae4d4f36d0b5a0610cf610967af55db37b78d1cf7863cee37f3b",
+          "after_sha256": "86e4714e3d7d5b7ea8ef3419b4bac3002d11a82710ce27f91cd70756d7c866f2"
+        },
+        {
+          "path": "runpod/serverless/modules/rp_fastapi.py",
+          "before_sha256": "2433907e9ba86ad3a7b3de7232b7f87c28cb77b02450a306879489126f28c093",
+          "after_sha256": "c31978678a848db4a56192439446cb80eb2e2667a7997adce682b60abbe0fa2b"
+        }
+      ]
+    },
+    {
+      "file": "upstream-fitness.patch",
+      "sha256": "156775e08b1f44282acc0f639313ac82f276ff1d9c50a756c94304e72f1821c8",
+      "official_commits": [
+        {
+          "commit": "08e07cb5dded275b1bab0451940433fe2a1c8244",
+          "url": "https://github.com/runpod/runpod-python/commit/08e07cb5dded275b1bab0451940433fe2a1c8244"
+        },
+        {
+          "commit": "f95aef892f673875f2cc9801e440486c40b1bc48",
+          "url": "https://github.com/runpod/runpod-python/commit/f95aef892f673875f2cc9801e440486c40b1bc48"
+        }
+      ],
+      "files": [
+        {
+          "path": "runpod/serverless/modules/rp_fitness.py",
+          "before_sha256": "5c0f3fc70379dca3e9b7ea255aef0738808e4d60dadbbc3bf9c69c19360fe203",
+          "after_sha256": "90770dbc7de68cc8189d016095c8d0cd7e185df40003d0ae500581fdbda0358e"
+        }
+      ]
+    },
+    {
+      "file": "upstream-ssrf.patch",
+      "sha256": "e0d540c1c29c460233af63a350af018c8ee15563ceccd0825305082cebdc7be3",
+      "official_commits": [
+        {
+          "commit": "b510d2a989e6ce17c7316c333697754da6d99f5e",
+          "url": "https://github.com/runpod/runpod-python/commit/b510d2a989e6ce17c7316c333697754da6d99f5e"
+        }
+      ],
+      "files": [
+        {
+          "path": "runpod/serverless/utils/rp_ssrf.py",
+          "before_sha256": null,
+          "after_sha256": "8bfa98d6d4ab1f80eedc5557769e17a3982dc00128825fcbf9842d0d8d525141"
+        },
+        {
+          "path": "runpod/serverless/utils/rp_download.py",
+          "before_sha256": "71a42d8538c4b64ee514bcc3d32302601a9280eceaf406e7fd83f72ea010a91d",
+          "after_sha256": "3ce22f9789638a58c3bcd840ed2e5ad1f13f12df063e6dc4b04da8a7144d8666"
+        }
+      ]
+    }
+  ],
+  "scope": "Selective official job-state, fitness-failure and download SSRF fixes on Runpod1.10.0; compatible1.10 dependency declarations retained exactly. Not equivalent to upstream1.12.0.",
+  "excluded_changes": [
+    "VolumeCache/network-volume integration",
+    "batch logging",
+    "dependency-floor upgrades",
+    "all other1.12 source changes"
+  ],
+  "license": {
+    "spdx": "MIT",
+    "sha256": "8f243f986467f900ef2ddf831317383b163ced27005041c62254fc812152d86c",
+    "source": "base_wheel:runpod-1.10.0.dist-info/licenses/LICENSE"
+  },
+  "candidate_wheel": {
+    "filename": "runpod-1.10.0+pulsefeed.security.1-py3-none-any.whl",
+    "sha256": "10466fea6777e58036c4b599d5da4ff7c1cfce807351fe41a989c50dae4eed1a",
+    "size": 1155105
+  }
+}

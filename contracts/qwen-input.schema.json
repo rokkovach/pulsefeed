@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:pulsefeed:v1:qwen-input",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "type": "integer"
+    },
+    "stage": {
+      "const": "qwen"
+    },
+    "run_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "invocation_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "deadline_unix_ms": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "article": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "excerpt": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "title",
+        "excerpt"
+      ],
+      "additionalProperties": false
+    },
+    "system_prompt": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "article_template": {
+      "type": "string",
+      "minLength": 36,
+      "maxLength": 2036,
+      "description": "Optional user-message layout. Exactly one {{article_title}} and {{article_excerpt}} marker; at most 2000 other Unicode code points. Each marker expands once to JSON-quoted article text. Omission preserves the legacy article JSON message."
+    },
+    "max_new_tokens": {
+      "type": "integer",
+      "const": 256
+    }
+  },
+  "required": [
+    "schema_version",
+    "stage",
+    "run_id",
+    "invocation_id",
+    "deadline_unix_ms",
+    "article",
+    "system_prompt",
+    "max_new_tokens"
+  ],
+  "additionalProperties": false
+}

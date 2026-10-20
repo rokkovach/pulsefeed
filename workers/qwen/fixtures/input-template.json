@@ -1,0 +1,15 @@
+{
+  "input": {
+    "schema_version": 1,
+    "stage": "qwen",
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "invocation_id": "22222222-2222-4222-8222-222222222222",
+    "deadline_unix_ms": 0,
+    "article": {
+      "title": "Residents build a community garden",
+      "excerpt": "Neighbors plant trees and vegetables beside apartment buildings."
+    },
+    "system_prompt": "Create one concise editorial illustration prompt describing subject, setting and composition.",
+    "max_new_tokens": 256
+  }
+}

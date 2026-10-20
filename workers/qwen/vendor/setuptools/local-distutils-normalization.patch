@@ -1,0 +1,43 @@
+--- a/setuptools/_distutils/filelist.py
++++ b/setuptools/_distutils/filelist.py
+@@ -10,6 +10,7 @@
+ import functools
+ import os
+ import re
++import unicodedata
+ from collections.abc import Iterable
+ from typing import Literal, overload
+ 
+@@ -263,7 +264,8 @@
+             self.findall()
+ 
+         for name in self.allfiles:
+-            if pattern_re.search(name):
++            candidate = unicodedata.normalize("NFC", name) if not is_regex else name
++            if pattern_re.search(candidate):
+                 self.debug_print(" adding " + name)
+                 self.files.append(name)
+                 files_found = True
+@@ -311,7 +313,8 @@
+         pattern_re = translate_pattern(pattern, anchor, prefix, is_regex)
+         self.debug_print(f"exclude_pattern: applying regex r'{pattern_re.pattern}'")
+         for i in range(len(self.files) - 1, -1, -1):
+-            if pattern_re.search(self.files[i]):
++            candidate = unicodedata.normalize("NFC", self.files[i]) if not is_regex else self.files[i]
++            if pattern_re.search(candidate):
+                 self.debug_print(" removing " + self.files[i])
+                 del self.files[i]
+                 files_found = True
+@@ -406,6 +409,12 @@
+         else:
+             return pattern
+ 
++    # Local GHSA-h35f-9h28-mq5c backport extension: compare canonical forms
++    # without rewriting the original filenames stored in FileList.files.
++    # Explicit regex callers retain their existing byte/form-sensitive behavior.
++    pattern = unicodedata.normalize("NFC", pattern) if pattern else pattern
++    prefix = unicodedata.normalize("NFC", prefix) if prefix is not None else prefix
++
+     # ditch start and end characters
+     start, _, end = glob_to_re('_').partition('_')
+ 

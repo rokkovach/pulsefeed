@@ -1,0 +1,467 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:pulsefeed:v1:flux-provider-output",
+  "type": "object",
+  "properties": {
+    "result": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "type": "integer"
+        },
+        "stage": {
+          "const": "flux"
+        },
+        "run_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "invocation_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ok": {
+          "type": "boolean"
+        },
+        "model": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "const": "black-forest-labs/FLUX.2-klein-4B"
+            },
+            "revision": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "precision": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "runtime": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "revision",
+            "precision",
+            "runtime"
+          ],
+          "additionalProperties": false
+        },
+        "data": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "image_base64": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2796204,
+                  "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+                },
+                "mime_type": {
+                  "enum": [
+                    "image/webp",
+                    "image/jpeg"
+                  ]
+                },
+                "width": {
+                  "type": "integer",
+                  "const": 1024
+                },
+                "height": {
+                  "type": "integer",
+                  "const": 1024
+                },
+                "seed": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 4294967295
+                },
+                "image_bytes": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 2097152
+                }
+              },
+              "required": [
+                "image_base64",
+                "mime_type",
+                "width",
+                "height",
+                "seed",
+                "image_bytes"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "usage": {
+          "type": "object",
+          "properties": {
+            "image_count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "required": [
+            "image_count"
+          ],
+          "additionalProperties": false
+        },
+        "timings": {
+          "type": "object",
+          "properties": {
+            "inference_ms": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "inference_ms"
+          ],
+          "additionalProperties": false
+        },
+        "counters": {
+          "type": "object",
+          "properties": {
+            "inference_attempts": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "inference_retries": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "dependency_retries": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "inference_attempts",
+            "inference_retries",
+            "dependency_retries"
+          ],
+          "additionalProperties": false
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "enum": [
+                    "INVALID_INPUT",
+                    "INPUT_TOO_LARGE",
+                    "UNSUPPORTED_SCHEMA",
+                    "MODEL_NOT_READY",
+                    "MODEL_ACCESS_DENIED",
+                    "UNSUPPORTED_RUNTIME",
+                    "DEPENDENCY_UNAVAILABLE",
+                    "GPU_OOM",
+                    "INFERENCE_FAILED",
+                    "INFERENCE_OUTCOME_UNKNOWN",
+                    "INVALID_MODEL_OUTPUT",
+                    "OUTPUT_TOO_LARGE",
+                    "DEADLINE_EXCEEDED",
+                    "CANCELLED"
+                  ]
+                },
+                "message": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "retryable": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "code",
+                "message",
+                "retryable"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "stage",
+        "run_id",
+        "invocation_id",
+        "ok",
+        "model",
+        "data",
+        "usage",
+        "timings",
+        "counters",
+        "error"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "ok": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "image_base64": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2796204,
+                    "pattern": "^[A-Za-z0-9+/]*={0,2}$"
+                  },
+                  "mime_type": {
+                    "enum": [
+                      "image/webp",
+                      "image/jpeg"
+                    ]
+                  },
+                  "width": {
+                    "type": "integer",
+                    "const": 1024
+                  },
+                  "height": {
+                    "type": "integer",
+                    "const": 1024
+                  },
+                  "seed": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                  },
+                  "image_bytes": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2097152
+                  }
+                },
+                "required": [
+                  "image_base64",
+                  "mime_type",
+                  "width",
+                  "height",
+                  "seed",
+                  "image_bytes"
+                ],
+                "additionalProperties": false
+              },
+              "error": {
+                "type": "null"
+              },
+              "run_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "invocation_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "counters": {
+                "properties": {
+                  "inference_attempts": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 2
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              },
+              "model": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "const": "black-forest-labs/FLUX.2-klein-4B"
+                  },
+                  "revision": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "precision": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "runtime": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "id",
+                  "revision",
+                  "precision",
+                  "runtime"
+                ],
+                "additionalProperties": false
+              },
+              "usage": {
+                "type": "object",
+                "properties": {
+                  "image_count": {
+                    "type": "integer",
+                    "const": 1
+                  }
+                },
+                "required": [
+                  "image_count"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "data": {
+                "type": "null"
+              },
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "enum": [
+                      "INVALID_INPUT",
+                      "INPUT_TOO_LARGE",
+                      "UNSUPPORTED_SCHEMA",
+                      "MODEL_NOT_READY",
+                      "MODEL_ACCESS_DENIED",
+                      "UNSUPPORTED_RUNTIME",
+                      "DEPENDENCY_UNAVAILABLE",
+                      "GPU_OOM",
+                      "INFERENCE_FAILED",
+                      "INFERENCE_OUTCOME_UNKNOWN",
+                      "INVALID_MODEL_OUTPUT",
+                      "OUTPUT_TOO_LARGE",
+                      "DEADLINE_EXCEEDED",
+                      "CANCELLED"
+                    ]
+                  },
+                  "message": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message",
+                  "retryable"
+                ],
+                "additionalProperties": false
+              },
+              "usage": {
+                "type": "object",
+                "properties": {
+                  "image_count": {
+                    "type": "integer",
+                    "const": 0
+                  }
+                },
+                "required": [
+                  "image_count"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "result"
+  ],
+  "additionalProperties": false
+}
