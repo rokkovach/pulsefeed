@@ -10,7 +10,8 @@ Mermaid topology sources. Report screenshots and diagram PNGs are in assets.
 
 The controlled laptop-to-Runpod test completed ten 512-square images
 and twenty model calls, with no retries or duplicate invocations.
-The latest connected Railway generation release remains pending redeployment.
+The public Railway app also passed a nine-story NYTimes run: nine images,
+eighteen successful calls, matching usage totals and no extra calls on refresh.
 
 Admin credentials are deliberately excluded. Share the password separately.
 The repository includes the source, deployment guides, test commands,

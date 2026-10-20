@@ -15,7 +15,7 @@ flowchart TB
     Evidence[Native GPU verified<br/>27 images; 54 successful calls; zero retries]
     Spark --- Evidence
   end
-  subgraph Cloud[Runpod verified · latest Railway app update pending]
+  subgraph Cloud[Railway + Runpod verified]
     R[Railway FastAPI + persistent /data<br/>One replica; one ASGI process / coordinator]
     subgraph RP[Runpod · AMD64 / Blackwell SM120<br/>RTX 5090 selected by operator · 32 GB]
       QR[Qwen queue endpoint<br/>App slots 1–3; one GPU; concurrency 1]
@@ -23,7 +23,7 @@ flowchart TB
     end
     R <-->|Native /run + /status/id| QR
     R <-->|Native /run + /status/id| FR
-    Gates[Local app to Runpod: 10 images / 20 calls / zero retries<br/>Railway web ingress, volume and auth verified<br/>Latest connected Railway generation flow pending]
+    Gates[Local app to Runpod: 10 images / 20 calls / zero retries<br/>Railway web ingress, volume and auth verified<br/>Railway generation: 9 images / 18 calls / zero retries]
     RP --- Gates
   end
   Shared[Shared: Qwen → app → FLUX; app owns admission + accounting<br/>Fixed model revisions / presets<br/>Persistent SQLite metadata; browser Blobs until original view expiry<br/>Temporary provider output; no permanent image archive]

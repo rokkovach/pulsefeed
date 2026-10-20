@@ -36,6 +36,6 @@ The controlled local-app-to-Runpod run produced **ten 512-square images from twe
 
 ## Current status
 
-**Verified:** native Spark inference, live Runpod model calls from the laptop, and Railway web ingress, authentication and persistence. **Next:** refresh Qwen’s CA bundle, redeploy the latest app and test the connected Railway generation flow. Cold starts dominate current latency; active workers are the first performance improvement. Remaining upstream dependency findings are documented.
+**Verified:** native Spark inference, live Runpod model calls and the full Railway flow: nine NYTimes images, eighteen successful calls, matching usage totals and no duplicate work on refresh. The Qwen CA-bundle update is published. **Next:** I would reduce wait time with warm workers and improve image availability with private object storage for the page's lifetime.
 
 Evidence and tradeoffs: `docs/architecture.md` and `docs/dependency-remediation-2026-10-20.md`.

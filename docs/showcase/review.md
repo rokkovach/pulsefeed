@@ -14,7 +14,7 @@ I built PulseFeed as a small RSS reader with an AI illustration pipeline. A visi
 
 **The boundaries.** Provider keys stay on the server. The browser receives validated image bytes and saves Blobs in IndexedDB until the original one-hour page expiry. SQLite stores metadata, not image files. There is no permanent image archive.
 
-The live Runpod pipeline is verified. The latest connected Railway generation flow and final dependency refresh remain release gates.
+I verified the complete Railway-to-Runpod flow with a nine-story NYTimes page, including generated images, usage accounting and refresh reuse.
 
 <!-- page -->
 
@@ -71,7 +71,7 @@ The worker validates the schema, IDs, text limits and deadline before inference.
 
 Pinned dependencies, cache validation and device checks complete before the Runpod SDK registers the handler. Startup downloads have bounded retries. Inference is not blindly replayed. Cancellation, execution deadlines and process cleanup remain in place; an uncertain native outcome recycles the worker rather than claiming a safe completion.
 
-The cleanup release passed 92 local worker and SDK tests plus first and warm Spark inference. Real Runpod inference is verified. A CA-bundle advisory published during the final review requires a Qwen image rebuild before reviewer deployment. The known-working v1.0.4 image remains available alongside v1.0.5; immutable references and rollback instructions are recorded in the repository. The restricted API key did not permit independently matching the live endpoint configuration to an image digest.
+I verified the cleanup release with 92 local worker and SDK tests plus first and warm Spark inference. Real Runpod inference is verified. I also rebuilt Qwen as v1.0.6 with the patched CA bundle and checked its dependencies, trust store and native Spark inference. Earlier images remain available for rollback; immutable references and rollout instructions are recorded in the repository. The restricted API key does not permit independently matching the live endpoint configuration to an image digest.
 
 Code entry points: workers/qwen/handler.py and workers/qwen/runtime.py. Build, cache policy and runtime compatibility are documented in workers/qwen/README.md.
 
@@ -119,16 +119,15 @@ The controlled laptop-to-Runpod test completed ten 512-square WebP images across
 
 The nine-story page took 5 minutes 44 seconds. These are observations from one controlled run, not latency percentiles. Waiting for workers dominated the GPU execution time. Earlier Spark validation covered Hacker News, BBC England and NYTimes. CPU and browser behavior checks cover admission, ownership, storage, expiry and recovery separately from live GPU tests.
 
-## What we fixed during deployment
+I then verified the public Railway deployment with nine NYTimes stories: nine 512-square images, eighteen successful model calls and zero retries. All nine stories supplied descriptions for the prompt context. Admin totals matched 4,528 input and 618 output Qwen tokens, nine FLUX images and nine image attempts. Reservations settled to zero; refreshing and replaying the same request created no extra calls.
 
-Qwen initially failed during startup. Increasing the worker disk to 40 GB resolved an incomplete model download; clearer diagnostics then exposed cache links rejected by our validation. We accepted externally linked model files only after checking their pinned filename, size and full SHA-256 hash. A later test expired in the queue because its example deadline was stale; a fresh deadline confirmed successful inference. We then simplified both handlers, kept the startup, deadline and cancellation safeguards, and preserved the working image versions for rollback. The full troubleshooting record is in docs/qwen-runpod-startup-fix-2026-10-20.md.
+## What I fixed during deployment
+
+Qwen initially failed during startup. Increasing the worker disk to 40 GB resolved an incomplete model download; clearer diagnostics then exposed cache links rejected by the cache validation. I accepted externally linked model files only after checking their pinned filename, size and full SHA-256 hash. A later test expired in the queue because its example deadline was stale; a fresh deadline confirmed successful inference. I then simplified both handlers, kept the startup, deadline and cancellation safeguards, and preserved the working image versions for rollback. The full troubleshooting record is in docs/qwen-runpod-startup-fix-2026-10-20.md.
 
 ## Next steps
 
-- **Finish the release.** Rebuild Qwen with the patched CA bundle and redeploy the app after Railway recovers. Check the connected RSS-to-image flow, admin access, persistent storage and usage accounting before sharing the live demo.
-- **Reduce wait time.** Keep one active worker per model for a warm demo, with a longer idle timeout and FlashBoot enabled. Three active workers per model would keep the whole request wave warm, at the cost of six continuously billed GPUs.
-- **Improve image availability.** Add a private S3-compatible bucket if images must outlive provider result retention. Use short-lived signed access and lifecycle deletion aligned with the product's expiry policy.
-- **Measure and maintain.** Record warm and cold latency distributions and cost per completed page. Recheck upstream dependency findings and exercise rollback on the exact published images.
-- **Scale only when needed.** Keep one process and SQLite for this demo. Multiple app replicas would need a shared database and coordinated job ownership, rather than additional independent schedulers.
+- **Wait time.** I would reduce cold starts and queue delays by keeping workers warm, then measure the improvement against the extra GPU cost.
+- **Image availability.** I would add private object storage so images remain available throughout the page's one-hour lifetime, even when the browser has no saved copy and the provider result has expired.
 
 The repository includes the implementation, deployment guides, editable diagrams and validation records. Admin credentials are shared separately; they are not included in this report or the repository.

@@ -8,7 +8,7 @@ The reader is small. Most of the work is in making the model pipeline predictabl
 
 ![The PulseFeed reader showing BBC England stories with AI-generated illustrations and source links.](docs/showcase/assets/reader.png)
 
-The setup is one Railway app and two separate Runpod queue endpoints. The latest app has been tested locally against both live Runpod models; it also runs with native workers on a DGX Spark. The final connected Railway release is pending redeployment. [Architecture and tradeoffs](docs/architecture.md) · [Local versus cloud](docs/diagrams/local-vs-cloud.svg)
+The setup is one Railway app and two separate Runpod queue endpoints. I tested the full public Railway flow with nine NYTimes stories, as well as the laptop-to-Runpod path and native workers on a DGX Spark. [Architecture and tradeoffs](docs/architecture.md) · [Local versus cloud](docs/diagrams/local-vs-cloud.svg)
 
 ## Take a look
 
@@ -43,13 +43,13 @@ Open [localhost:8000](http://127.0.0.1:8000/), enter `demo` and click **View RSS
 
 ## What is working
 
-The [Railway web app](https://pulsefeed-web-production.up.railway.app) has persistent SQLite, secure sessions and admin sign-in. The latest worker and app updates still need the final connected Railway smoke test after redeployment. [Release status](docs/release-status.md)
+The [Railway web app](https://pulsefeed-web-production.up.railway.app) has persistent SQLite, secure sessions and admin sign-in. Its full NYTimes test completed **nine 512-square images from eighteen successful model calls**, with no retries. Admin usage and quota counters matched; refresh and exact request replay made no extra calls. [Production validation](docs/production-validation-2026-10-20.md) · [Release status](docs/release-status.md)
 
 The controlled **local app → live Runpod** test produced **ten 512-square images from twenty successful model calls**, with no retries or duplicate invocations. Three requests per model and six started stories were observed. Qwen reported 4,880 input and 767 output tokens; admin totals matched the saved results. The [validation record](docs/local-runpod-validation-2026-10-20.md) separates provider wait time from execution time. Cold workers were the main delay, so this is not a snappy warm-latency benchmark.
 
 Earlier native Spark validation covered Hacker News, BBC England and NYTimes: 27 images and 54 successful model calls, with zero retries. Both model images are public on [Docker Hub](https://hub.docker.com/r/rokkovach/pulsefeed/tags). Use the current tags and immutable digests in the [release status](docs/release-status.md); known-working versions are retained for rollback.
 
-Before reviewer deployment, Qwen needs a CA-bundle rebuild for the advisory identified during final CI; the app pin is fixed and FLUX already uses the patched bundle. Some upstream OS/native dependency findings also remain, including bundled FFmpeg. The [remediation record](docs/dependency-remediation-2026-10-20.md) describes their scope. The project is a bounded case-study deployment, not a claim of complete vulnerability clearance.
+Qwen v1.0.6 contains the patched CA bundle, and its rollout passed a fresh Runpod request before Railway generation was enabled. The app and FLUX also pin the corrected bundle. Some upstream OS/native dependency findings remain, including bundled FFmpeg. The [remediation record](docs/dependency-remediation-2026-10-20.md) describes their scope. The project is a bounded case-study deployment, not a claim of complete vulnerability clearance.
 
 ## A few deliberate constraints
 

@@ -35,6 +35,10 @@ The native smoke passed first and warm inference, token accounting, invalid-inpu
 
 No certificate needs to be uploaded through either console. Credentials remain runtime variables and are excluded from the build context and image configuration.
 
+## Production follow-up
+
+The operator confirmed the latest workers were ready. A fresh Qwen request passed on a new worker, Railway generation was enabled, and a complete nine-story feed passed. See [production validation](production-validation-2026-10-20.md) for aggregate usage, quota settlement and refresh checks. The deployment order above remains the procedure for future rollouts.
+
 ## Rebuilding later
 
 Prepare into a new private directory outside the checkout, then build only Qwen:

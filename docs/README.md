@@ -10,7 +10,7 @@ Start with the [reviewer guide](reviewer-guide.md), [six-page report](../output/
 | [Code walkthrough](code-walkthrough.md) | Source entry points from RSS submission to browser image |
 | [Architecture diagram](diagrams/architecture.svg) | The app, two workers and their data boundaries |
 | [Request lifecycle](diagrams/request-lifecycle.svg) | Admission, model stages, polling and browser storage |
-| [Local versus cloud](diagrams/local-vs-cloud.svg) | What Spark validation covers and what Runpod/Railway still need |
+| [Local versus cloud](diagrams/local-vs-cloud.svg) | What each Spark, Runpod and Railway validation path covers |
 
 ## Run and operate it
 
@@ -27,13 +27,14 @@ Start with the [reviewer guide](reviewer-guide.md), [six-page report](../output/
 
 ## Check the evidence
 
+- [Production Railway validation](production-validation-2026-10-20.md): nine real NYTimes images, token/image accounting, quota settlement and refresh reuse.
 - [Local app with live Runpod](local-runpod-validation-2026-10-20.md): real RSS, 512 images, bounded concurrency and aggregate usage checks.
 - [Compact FLUX images](flux-compact-images-2026-10-20.md): 512-square default, worker cleanup, deployment order and rollback.
 - [Qwen startup fixes and cleanup](qwen-runpod-startup-fix-2026-10-20.md): storage, cache links, expired test deadlines, safeguards and rollback.
 - [Public worker release](image-release-2026-10-20.md): current public tags, immutable registry digests and anonymous-access verification.
 - [Railway cloud checkpoint](cloud-release-2026-10-20.md): production app, authentication, persistent storage and paused inference.
 
-The controlled local-app/Runpod test completed ten images and twenty successful model calls, with bounded request overlap and verified usage accounting. The earlier maintained Spark pair completed 27 images and 54 calls across three feeds. Railway web ingress, authentication and persistence are verified; the latest connected Railway generation flow remains a release gate. See the [release status](release-status.md) for current image references and rollback versions.
+The controlled local-app/Runpod test completed ten images and twenty successful model calls, with bounded request overlap and verified usage accounting. The earlier maintained Spark pair completed 27 images and 54 calls across three feeds. The public Railway flow also completed nine NYTimes images and eighteen calls with matching usage and no extra calls on refresh. See the [release status](release-status.md) for current image references and rollback versions.
 
 - [Dependency remediation, October 20](dependency-remediation-2026-10-20.md): current image identities, exact-image checks, final native GPU run and retained security findings. No remediation image was published or cloud-deployed at that checkpoint.
 - [Integration validation](../integration/VALIDATION.md) and [release evaluation](../integration/RELEASE_EVALUATION.md): dated application/browser checks and release scope.

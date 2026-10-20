@@ -1,10 +1,10 @@
 # Reviewer guide
 
-Start with the [six-page report](../output/pdf/pulsefeed-review.pdf). It shows the architecture, the actual reader and admin screens, the two containers, measured results and the remaining deployment work. An [editable Word copy](../output/docx/pulsefeed-review.docx) and [PNG assets](showcase/assets/README.md) are included.
+Start with the [six-page report](../output/pdf/pulsefeed-review.pdf). It shows the architecture, the actual reader and admin screens, the two containers, measured results and two next steps. An [editable Word copy](../output/docx/pulsefeed-review.docx) and [PNG assets](showcase/assets/README.md) are included.
 
 ## Try the app
 
-The web app is at [pulsefeed-web-production.up.railway.app](https://pulsefeed-web-production.up.railway.app). Check [release status](release-status.md) before the walkthrough: the latest connected model flow is pending the final Railway redeployment, Qwen CA-bundle refresh and smoke test.
+The web app is at [pulsefeed-web-production.up.railway.app](https://pulsefeed-web-production.up.railway.app). The complete Railway-to-Runpod flow passed with nine NYTimes images and matching usage counters. [Production validation](production-validation-2026-10-20.md) records the checks; [release status](release-status.md) lists the current images.
 
 1. Paste a public RSS URL and select **View RSS**. Hacker News (`https://news.ycombinator.com/rss`) is a convenient starting point.
 2. Wait for the first illustrations. Provider cold starts can take a minute or more; GPU execution itself was only a few seconds in the controlled run.
@@ -20,4 +20,4 @@ The web app is at [pulsefeed-web-production.up.railway.app](https://pulsefeed-we
 - [Deployment](deployment.md), [operations](operations.md) and [release status](release-status.md) cover secrets, storage, draining, rollback and the remaining gates.
 - [Validation](local-runpod-validation-2026-10-20.md) separates real Runpod results from synthetic CPU/browser checks. [Test commands](../integration/README.md) are reproducible without provider credentials.
 
-This is deliberately one app process with SQLite and a bounded active feed batch. The next improvements are keeping workers warm for the demo, optional expiring object storage for images, and measured latency/cost. It does not claim production-scale multi-tenant scheduling or complete upstream vulnerability clearance.
+This is deliberately one app process with SQLite and a bounded active feed batch. I would next reduce wait time with warm workers and improve image availability with expiring private object storage. It does not claim production-scale multi-tenant scheduling or complete upstream vulnerability clearance.

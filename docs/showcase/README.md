@@ -19,4 +19,4 @@ python3 scripts/check-release.py
 
 Capturing existing pages uses `capture_report.cjs` with an ignored private session export and an explicit Chromium executable. It does not submit feeds, create inference or edit limits. Never commit session exports. The screenshots are from the actual local app using live Runpod results, not a UI mockup.
 
-See [release status](../release-status.md) for current evidence and the remaining Railway gate. Before sending the email, complete that gate and share the admin password separately from the public materials.
+See [release status](../release-status.md) and [production validation](../production-validation-2026-10-20.md) for the current evidence. Share the admin password separately from the public materials.

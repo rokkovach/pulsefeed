@@ -1,6 +1,6 @@
 # PulseFeed technical diagrams
 
-Evidence checkpoint: **20 October 2026**. The diagrams show the deployed components and the remaining web release gate. Native Spark GPU inference and laptop-to-Runpod queue inference are verified. Railway web ingress, authentication and persistence passed; the latest connected Railway generation flow remains pending redeployment.
+Evidence checkpoint: **20 October 2026 UTC**. Native Spark GPU inference, laptop-to-Runpod queue inference and the full Railway generation flow are verified. The public Railway test completed nine NYTimes images and eighteen successful calls, with matching usage and refresh reuse. See [production validation](../production-validation-2026-10-20.md).
 
 | Diagram | Standalone vector | PNG preview | Editable topology |
 | --- | --- | --- | --- |

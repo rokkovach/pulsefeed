@@ -54,7 +54,7 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     c = canvas.Canvas(str(args.output), pagesize=A4, invariant=1)
     c.setTitle('PulseFeed | Project one-pager')
-    c.setAuthor('PulseFeed')
+    c.setAuthor('Rok Kovac')
     c.setSubject('Architecture, verified evidence and remaining deployment work')
     w, h = A4
     margin = 39
