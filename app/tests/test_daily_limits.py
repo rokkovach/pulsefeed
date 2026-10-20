@@ -272,6 +272,38 @@ async def test_new_invocations_record_mode_and_admin_aggregate_is_private(env):
     assert len(env['provider'].submissions)==2
 
 
+@pytest.mark.parametrize('unverified_output',[None,'{broken',dump({'model':{'id':'unrecognized-model'}})])
+def test_admin_hides_unattributed_results_without_deleting_jobs_or_releasing_quota(env,unverified_output):
+    from pulsefeed.usage import aggregate_usage
+
+    ledger(env,env['owner'],'https://example.com/confirmed',amount=1)
+    service=env['app'].state.service
+    page=service.view_feed(env['owner'],'https://example.com/pending','pending-model-report',source(('pending',)))
+    invocation_id=new_id()
+    env['db'].execute("INSERT INTO invocations(id,run_id,stage,status,input,output,created,execution_mode) VALUES(?,?,'flux','pending','{}',?,?,'live')",(invocation_id,page['runs'][0]['id'],unverified_output,time.time()))
+    quotas=service.quota_summary()
+    history=env['db'].all('SELECT * FROM invocations')
+    assert quotas['global']['used']==1 and quotas['global']['reserved']==2
+    assert any(row['model_id'] is None for row in aggregate_usage(env['db'],'all')['models'])
+
+    admin(env)
+    for window in ('today','all'):
+        raw=aggregate_usage(env['db'],window)
+        response=env['client'].get('/api/admin/usage',params={'window':window})
+        assert response.status_code==200
+        report=response.json()
+        assert report['models']==[row for row in raw['models'] if row['model_id'] is not None]
+        assert report['models'] and all(row['model_id'] is not None for bucket in report['timeline']['buckets'] for row in bucket['models'])
+        for key in ('global','hourly','page'):
+            assert report['quotas'][key]==quotas[key]
+        html=env['client'].get('/admin',params={'window':window})
+        assert html.status_code==200 and 'Unverified model' not in html.text
+        assert 'black-forest-labs/FLUX.2-klein-4B' in html.text
+
+    assert env['db'].all('SELECT * FROM invocations')==history
+    assert env['provider'].submissions==[]
+
+
 def test_schema_two_upgrade_preserves_history_and_unknown_provenance(tmp_path):
     import sqlite3
     from pulsefeed.db import SCHEMA

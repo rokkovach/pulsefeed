@@ -346,7 +346,14 @@ def create_app(config=None, provider=None, feed_fetcher=None):
         if window not in ("today","all"):
             raise AppError("INVALID_WINDOW","Choose today or all recorded usage.")
         from .usage import aggregate_usage
-        return dict(aggregate_usage(db,window),quotas=service.quota_summary())
+        report = aggregate_usage(db,window)
+        # Pending or malformed results have no confirmed model identity. Keep
+        # their durable jobs and quota charges, but omit them from model reports
+        # until a validated result can attribute their usage to Qwen or FLUX.
+        report["models"] = [row for row in report["models"] if row["model_id"] is not None]
+        for bucket in report["timeline"]["buckets"]:
+            bucket["models"] = [row for row in bucket["models"] if row["model_id"] is not None]
+        return dict(report,quotas=service.quota_summary())
 
     @app.get("/admin")
     async def admin_page(request:Request):
